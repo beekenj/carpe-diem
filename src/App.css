@@ -1,38 +1,103 @@
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  max-width: 320px;
+  margin: 30px auto;
+}
+
+
+.btn-group {
+  position: fixed;
+  bottom: 0px;
+  /* max-width: 320px; */
+  width: 100%;
+  background-color: #5c5c5c; /* Gray */
+  height: 55px;
+}
+
+.btn-group .button {
+  background-color: #5c5c5c; /* Gray */
+  border: none;
   color: white;
+  padding: 15px 30px;
+  /* width: 33.333333333%; */
+  width: 25%;
+  height: 100%;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  /* float: left; */
 }
 
-.App-link {
-  color: #61dafb;
+.navbar-group {
+  position: fixed;
+  display: flex;
+  justify-content: space-between;
+  top: 0px;
+  /* max-width: 320px; */
+  width: 100%;
+  background-color: #000000; /* Black */
+  height: 47px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.navbar-search {
+display: flex;
+}
+
+.navbar-group .button {
+  background-color: #000000; /* Black */
+  border: none;
+  color: white;
+  padding: 15px 15px;
+  /* width: 33.3333333%; */
+  height: 100%;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  /* float: left; */
+  text-align: left;
+}
+
+.navbar-group .select-home {
+  background-color: #411342; /* Purple */
+  border: none;
+  color: white;
+  padding: 10px 10px;
+  height: 100%;
+  width: 120px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: left;
+  /* background: transparent; */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.navbar-group .select-store {
+  background-color: #411342; /* Purple */
+  border: none;
+  color: white;
+  padding: 10px 10px;
+  height: 100%;
+  width: 160px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: left;
+  /* background: transparent; */
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.navbar-group .button:hover {
+  background-color: #0c0536; /* Deep Blue */
 }
