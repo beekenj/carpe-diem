@@ -1,6 +1,17 @@
 import './NavButton.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faCoffee, faHourglassStart, faHourglassEnd, faMoon } from '@fortawesome/free-solid-svg-icons'
+import { 
+    faCoffee, 
+    faHourglassStart, 
+    faHourglassEnd, 
+    faMoon, 
+    faPlus,
+    faLeaf,
+    faCreditCard,
+    faHeartPulse,
+    faTasks,
+    faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons'
 
 export default function NavButton(props) {
     const iconObj = {
@@ -8,14 +19,23 @@ export default function NavButton(props) {
         "Afternoon":faHourglassStart,
         "Evening":faHourglassEnd,
         "Night":faMoon,
+        "Add":faPlus,
+        "Plants":faLeaf,
+        "Bills":faCreditCard,
+        "Fitness":faHeartPulse,
+        "Tasks":faTasks,
+        "Priority":faExclamationTriangle,
     }
     return (
-        <button
-            className="button"
-            onClick={() => props.handleClick(props.section)}
-            style={{color:props.section === props.sectionSelect ? '#a2f3fc' : 'white'}}
-        >
-            <FontAwesomeIcon icon={iconObj[props.section]} />
-        </button>
+        <>
+            <button
+                className="button"
+                onClick={() => props.handleClick(props.section)}
+                style={{color:props.section === props.sectionSelect ? '#a2f3fc' : 'white'}}
+                >
+                {props.toDo > 0 && <div className='notification'>{props.toDo}</div>}
+                <FontAwesomeIcon icon={iconObj[props.section]} />
+            </button>
+        </>
     )
 }
