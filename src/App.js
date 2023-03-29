@@ -4,6 +4,7 @@ import AddItem from './components/AddItem';
 import NavButton from './components/NavButton';
 import ListItem from './components/ListItem';
 import ListItemTimed from './components/ListItemTimed';
+import ListItemDated from './components/ListItemDated';
 
 import { useEffect, useState } from 'react';
 
@@ -108,20 +109,41 @@ function App() {
     })
   }
 
-  function getNextGivenDay(dayOfWeek, weekOfMonth) {
-    const now = new Date()
-    const year = now.getFullYear()
-    const month = now.getMonth()
-    const date = new Date(year, month+1, 1)
-    return (new Date(year, month+1, 1-(date.getDay()-dayOfWeek)+7*weekOfMonth))
+  function billCheck(event) {
+    const {id} = event.target
+    const item = obj[id]
+    const dueDate = new Date(item.dueDate)
+    let newDate
+    if (item.taskFreq === "monthly") {
+      newDate = new Date(dueDate.setMonth(dueDate.getMonth()+1)).toDateString()
+    } else if (item.taskFreq === "monthly") {
+      newDate = new Date(dueDate.setYear(dueDate.getFullYear()+1)).toDateString()
+    }
+    set(ref(database, "carpeDiem/" + id), {
+      ...item,
+      "dueDate" : newDate,
+    })
+    // console.log(newDate)
   }
-  console.log(getNextGivenDay(1, 3))
+
+  // function getNextGivenDay(dayOfWeek, weekOfMonth) {
+  //   const now = new Date()
+  //   const year = now.getFullYear()
+  //   const month = now.getMonth()
+  //   const date = new Date(year, month+1, 1)
+  //   return (new Date(year, month+1, 1-(date.getDay()-dayOfWeek)+7*weekOfMonth))
+  // }
+  // console.log(getNextGivenDay(1, 3))
 
   list.sort((i1, i2) => 
     ((i1[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i1[1].lastChecked)/DAY) >
-    (i2[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY)) ? 1 :
+    (i2[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY)) ||
+    (i1[1].dueDate < i2[1].dueDate)
+    ? 1 :
     ((i1[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i1[1].lastChecked)/DAY) <
-    (i2[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY)) ? -1 : 0
+    (i2[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY)) ||
+    (i1[1].dueDate > i2[1].dueDate)
+    ? -1 : 0
   )
 
   // Setup DOM content
@@ -141,10 +163,19 @@ function App() {
   const donePlants = list
     .filter(elem => elem[1].type === "Plant" && Date.now() < elem[1].lastChecked+elem[1].checkFreq)
     .map((elem, idx) => <ListItemTimed key={idx} item={elem[1]} id={elem[0]} handleChange={() => console.log("no")} menuClick={() => console.log("todo")} />)
+  const toDoBills = list
+    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate)-(DAY*5) <= new Date())
+    .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={billCheck} menuClick={() => console.log("todo")} />)
+  const doneBills = list
+    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate)-(DAY*5) > new Date())
+    .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={() => console.log("no")} menuClick={() => console.log("todo")} />)
+  const pendBills = list
+      .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date())
+      .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={billCheck} menuClick={() => console.log("todo")} />)
 
-  
+  // console.log(new Date(new Date()-DAY))
 
-  const toDoCounts = [toDoPlants.length, 0, 0, 0]
+  const toDoCounts = [toDoPlants.length, pendBills.length, 0, 0]
 
   return (
     <>
@@ -169,10 +200,6 @@ function App() {
           <button 
             className='button'
             onClick={() => setAddSelect(prev => !prev)}
-            // section="Add" 
-            // handleClick={setSectionSelect} 
-            // sectionSelect={sectionSelect}
-            // toDo={list.filter(elem => elem[1].toDo).length}
           >
             <FontAwesomeIcon icon={faPlus} />
           </button>
@@ -182,16 +209,15 @@ function App() {
         </button>
       </div>
       {/* Content area */}
+      <div style={{height:"25px"}} />
       {addSelect ? 
         <div className='inner-content'>
-          <div style={{height:"25px"}} />
           <AddItem addClick={addClick} />
         </div> :
         <>
           {sectionSelect === "Tasks" && 
             <div>
               <div className="inner-content">
-                <div style={{height:"25px"}} />
                 {sections.map((section, idx) => 
                   listSelect === section && [toDoList[idx], doneList[idx]]
                 )}
@@ -212,10 +238,17 @@ function App() {
           }
           {sectionSelect === "Plants" && 
             <div>
-              <div style={{height:"25px"}} />
               <div className="inner-content">
                 {toDoPlants}              
                 {donePlants}              
+              </div>
+            </div>
+          }
+          {sectionSelect === "Bills" && 
+            <div>
+              <div className="inner-content">
+                {toDoBills}              
+                {doneBills}              
               </div>
             </div>
           }

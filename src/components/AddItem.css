@@ -109,7 +109,7 @@
 
 .add-button {
     color: #FDFDFD;
-    background-color: #AC485A;
+    background-color: #4857ac;
     border: 0;
     padding: 15px;
     margin: 5px 0;
@@ -121,7 +121,30 @@
 }
 
 .add-button:hover {
+    background-color: #002a43;
+    cursor: pointer;
+}
+
+.cancel-button {
+    color: #FDFDFD;
+    background-color: #AC485A;
+    border: 0;
+    padding: 15px;
+    margin: 5px 0;
+    border-radius: 8px;
+    font-size: 20px;
+    text-align: center;
+    font-family: 'Rubik', sans-serif;
+    width: 100%;
+}
+
+.cancel-button:hover {
     background-color: #432000;
     cursor: pointer;
+}
+
+.bill-freq {
+    display: flex;
+    justify-content: space-around;
 }
 
