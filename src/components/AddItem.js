@@ -13,6 +13,7 @@ import {
 export default function AddItem(props) {
     const DAY = 86400000
     const sections = ["Morning", "Afternoon", "Evening", "Night"]
+    const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
 
     const [listNum, setListNum] = useState(0)
     const [sectionSelect, setSectionSelect] = useState("Tasks")
@@ -20,9 +21,27 @@ export default function AddItem(props) {
     const [waterVal, setWaterVal] = useState()
     const [dateVal, setDateVal] = useState(new Date())
     const [billFreq, setBillFreq] = useState("monthly")
-    // console.log(new Date("Wed Mar 01 2023"))
-    // console.log(dateVal)
+    const [whichDays, setWhichDays] = useState({
+        Su:false,
+        M:false, 
+        Tu:false,
+        W:false,
+        Th:false,
+        F:false,
+        Sa:false,
+    })
+    const [checkType, setCheckType] = useState("checked")
+    // console.log(checkType)
 
+    function dayChange(event) {
+        const key = event.target.id
+        setWhichDays(prev => {
+            return {
+                ...prev,
+                [key] : !prev[key]
+            }   
+        })
+    }
 
     function sumbmit() {
         if (!name) {
@@ -41,6 +60,8 @@ export default function AddItem(props) {
             newEntry = {name:name, checkFreq:waterVal*DAY, lastChecked:d.setHours(0,0,0,0), type:sectionSelect}
         } else if (sectionSelect === "Bills") {
             newEntry = {name:name, dueDate:dateVal.toDateString(), taskFreq:billFreq, type:sectionSelect}
+        } else if (sectionSelect === "Fitness") {
+            newEntry = {name:name, toDo:true, isCheck:true, whichDays:whichDays, checkType:checkType, type:sectionSelect}
         }
         props.addClick(newEntry)
     }
@@ -112,7 +133,7 @@ export default function AddItem(props) {
                             id="monthly"
                             name="billFreq"
                             value="monthly"
-                            onChange={e => setBillFreq("monthly")}
+                            onChange={() => setBillFreq("monthly")}
                             checked={billFreq === "monthly"}
                         />
                         <label htmlFor="monthly">Monthly</label>
@@ -124,12 +145,54 @@ export default function AddItem(props) {
                             id="yearly"
                             name="billFreq"
                             value="yearly"
-                            onChange={e => setBillFreq("yearly")}
+                            onChange={() => setBillFreq("yearly")}
                             checked={billFreq === "yearly"}
                         />
                         <label htmlFor="yearly">Yearly</label>
                     </div>
                 </fieldset>
+                </>
+            }
+            {sectionSelect === "Fitness" &&
+                <>
+                    <div className='days-container'>
+                        {weekday.map((day, idx) => 
+                            <div 
+                            style={{color: whichDays[day] ? "rgb(179, 255, 160)" : "white"}}
+                            key={idx} 
+                            id={day} 
+                            onClick={dayChange}
+                        >
+                            {day}
+                        </div>)}
+                    </div>
+                    <fieldset className='check-type'>
+                        <legend>Check Type</legend>
+                        
+                        <div>
+                            <input 
+                                type="radio"
+                                id="checked"
+                                value="checked"
+                                name="checkType"
+                                onChange={() => setCheckType("checked")}
+                                checked={checkType === "checked"}
+                            />
+                            <label htmlFor="checked">Checked</label>
+                        </div>
+                        
+                        <div>
+                            <input 
+                                type="radio"
+                                id="count"
+                                value="count"
+                                name="checkType"
+                                onChange={() => setCheckType("count")}
+                                checked={checkType === "count"}
+                            />
+                            <label htmlFor="count">Count</label>
+                        </div>
+                    </fieldset>
                 </>
             }
             <button 

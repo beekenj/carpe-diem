@@ -41,6 +41,18 @@ function App() {
   const d = new Date()
   const sections = ["Morning", "Afternoon", "Evening", "Night"]
   const addSections = ["Plants", "Bills", "Fitness", "Priority"]
+  const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
+
+//   const dayobj = {
+//     sun:false,
+//     mon:false, 
+//     tue:false,
+//     wed:true,
+//     thu:false,
+//     fri:false,
+//     sat:false,
+// }
+//   console.log(dayobj[weekday[d.getDay()]])
   
   // state
   const [list, setList] = useState([])
@@ -48,6 +60,9 @@ function App() {
   const [listSelect, setListSelect] = useState("Morning")
   const [sectionSelect, setSectionSelect] = useState("Tasks")
   const [addSelect, setAddSelect] = useState(false)
+  const [fitDay, setFitDay] = useState(weekday[d.getDay()])
+
+  // console.log(fitDay)
 
   useEffect(() => {
     onValue(listInDB, function(snapshot) {
@@ -77,8 +92,11 @@ function App() {
   }
 
   function resetDay() {
-    if (window.confirm('Reset?')) {
-      list.forEach(elem => {
+    if (list.filter(elem => elem[1].toDo && !elem[1].type).length === 0 ||
+        window.confirm('Reset?')) {
+      list
+      .filter(elem => !elem[1].type)
+      .forEach(elem => {
         const id = elem[0]
         const item = obj[id]
         set(ref(database, "carpeDiem/" + id), {
@@ -87,6 +105,17 @@ function App() {
           "list" : item.defaultList,
         })
       })
+      list
+      .filter(elem => elem[1].type === "Fitness")
+      .forEach(elem => {
+        const id = elem[0]
+        const item = obj[id]
+        set(ref(database, "carpeDiem/" + id), {
+          ...item,
+          "toDo" : true, 
+        })
+      })
+      setFitDay(weekday[d.getDay()])
     }
   }
 
@@ -170,12 +199,27 @@ function App() {
     .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate)-(DAY*5) > new Date())
     .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={() => console.log("no")} menuClick={() => console.log("todo")} />)
   const pendBills = list
-      .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date())
-      .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={billCheck} menuClick={() => console.log("todo")} />)
+    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date())
+    .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={billCheck} menuClick={() => console.log("todo")} />)
+  const toDoFit = list
+    .filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[fitDay] && elem[1].toDo)
+    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
+  const pendFit = list
+    .filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].toDo)
+    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
+  const doneFit = list
+    .filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[fitDay] && !elem[1].toDo)
+    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
+  const toDoPrior = list
+    .filter(elem => elem[1].toDo && elem[1].priority)
+    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
+  const donePrior = list
+    .filter(elem => !elem[1].toDo && elem[1].priority)
+    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
 
   // console.log(new Date(new Date()-DAY))
 
-  const toDoCounts = [toDoPlants.length, pendBills.length, 0, 0]
+  const toDoCounts = [toDoPlants.length, pendBills.length, pendFit.length, toDoPrior.length]
 
   return (
     <>
@@ -186,7 +230,7 @@ function App() {
             section="Tasks" 
             handleClick={setSectionSelect} 
             sectionSelect={sectionSelect}
-            toDo={list.filter(elem => elem[1].toDo).length}
+            toDo={list.filter(elem => elem[1].toDo && !elem[1].type).length}
           />
           {addSections.map((section, idx) => 
             <NavButton 
@@ -250,6 +294,30 @@ function App() {
                 {toDoBills}              
                 {doneBills}              
               </div>
+            </div>
+          }
+          {sectionSelect === "Fitness" &&
+          <><div className="inner-content">
+            {toDoFit}
+            {doneFit}
+          </div>
+          <div className='days-bottom'>
+          {weekday.map((day, idx) => 
+            <div 
+              className='button'
+              style={{color: fitDay === day ? "rgb(179, 255, 160)" : "white"}}
+              key={idx} 
+              id={day} 
+              onClick={() => setFitDay(day)}
+            >
+            {day}
+          </div>)}
+      </div></>
+          }
+          {sectionSelect === "Priority" &&
+            <div className='inner-content'>
+              {toDoPrior}
+              {donePrior}
             </div>
           }
         </>
