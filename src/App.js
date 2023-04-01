@@ -8,7 +8,7 @@ import ListItemDated from './components/ListItemDated';
 
 import { useEffect, useState } from 'react';
 
-// Import the functions you need from the SDKs you need
+// Database functions
 import { initializeApp } from "firebase/app";
 import { 
   getDatabase, 
@@ -23,6 +23,10 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
     faRefresh,
     faPlus,
+    faCoffee, 
+    faSun,
+    faMoon, 
+    faBed,
 } from '@fortawesome/free-solid-svg-icons'
 
 const firebaseConfig = {
@@ -35,24 +39,13 @@ const database = getDatabase(app)
 const listInDB = ref(database, "carpeDiem")
 
 
-
 function App() {
   const DAY = 86400000
   const d = new Date()
   const sections = ["Morning", "Afternoon", "Evening", "Night"]
   const addSections = ["Plants", "Bills", "Fitness", "Priority"]
   const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
-
-//   const dayobj = {
-//     sun:false,
-//     mon:false, 
-//     tue:false,
-//     wed:true,
-//     thu:false,
-//     fri:false,
-//     sat:false,
-// }
-//   console.log(dayobj[weekday[d.getDay()]])
+  const sectionIcons = [faCoffee, faSun, faMoon, faBed]
   
   // state
   const [list, setList] = useState([])
@@ -82,9 +75,11 @@ function App() {
     setAddSelect(false)
   }
 
-  function listCheck(event) {
-    const {id, checked} = event.target
+  function listCheck(checked, id) {
+    // const {id, checked} = event.target
     const item = obj[id]
+    // console.log(checked, id)
+    if (!id) return
     set(ref(database, "carpeDiem/" + id), {
       ...item,
       "toDo" : checked ? false : true, 
@@ -145,7 +140,7 @@ function App() {
     let newDate
     if (item.taskFreq === "monthly") {
       newDate = new Date(dueDate.setMonth(dueDate.getMonth()+1)).toDateString()
-    } else if (item.taskFreq === "monthly") {
+    } else if (item.taskFreq === "yearly") {
       newDate = new Date(dueDate.setYear(dueDate.getFullYear()+1)).toDateString()
     }
     set(ref(database, "carpeDiem/" + id), {
@@ -163,15 +158,20 @@ function App() {
   //   return (new Date(year, month+1, 1-(date.getDay()-dayOfWeek)+7*weekOfMonth))
   // }
   // console.log(getNextGivenDay(1, 3))
+  // console.log(new Date().setHours(0,0,0,0)-(DAY*34))
 
   list.sort((i1, i2) => 
+    // Sort timed by next up
     ((i1[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i1[1].lastChecked)/DAY) >
     (i2[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY)) ||
-    (i1[1].dueDate < i2[1].dueDate)
+    // Sort dated by date
+    (new Date(i1[1].dueDate) > new Date((i2[1].dueDate)))
     ? 1 :
+    // Sort timed by next up
     ((i1[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i1[1].lastChecked)/DAY) <
     (i2[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY)) ||
-    (i1[1].dueDate > i2[1].dueDate)
+    // Sort dated by date
+    (new Date(i1[1].dueDate) < new Date((i2[1].dueDate)))
     ? -1 : 0
   )
 
@@ -187,16 +187,16 @@ function App() {
       .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={delayItem} />)
   )
   const toDoPlants = list
-    .filter(elem => elem[1].type === "Plant" && Date.now() >= elem[1].lastChecked+elem[1].checkFreq)
+    .filter(elem => elem[1].type === "Plants" && Date.now() >= elem[1].lastChecked+elem[1].checkFreq)
     .map((elem, idx) => <ListItemTimed key={idx} item={elem[1]} id={elem[0]} handleChange={timedCheck} menuClick={() => console.log("todo")} />)
   const donePlants = list
-    .filter(elem => elem[1].type === "Plant" && Date.now() < elem[1].lastChecked+elem[1].checkFreq)
+    .filter(elem => elem[1].type === "Plants" && Date.now() < elem[1].lastChecked+elem[1].checkFreq)
     .map((elem, idx) => <ListItemTimed key={idx} item={elem[1]} id={elem[0]} handleChange={() => console.log("no")} menuClick={() => console.log("todo")} />)
   const toDoBills = list
-    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate)-(DAY*5) <= new Date())
+    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate)-(DAY*4) <= new Date())
     .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={billCheck} menuClick={() => console.log("todo")} />)
   const doneBills = list
-    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate)-(DAY*5) > new Date())
+    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate)-(DAY*4) > new Date())
     .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={() => console.log("no")} menuClick={() => console.log("todo")} />)
   const pendBills = list
     .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date())
@@ -212,12 +212,23 @@ function App() {
     .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
   const toDoPrior = list
     .filter(elem => elem[1].toDo && elem[1].priority)
-    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
+    .map((elem, idx) => <ListItem 
+      key={idx} 
+      item={elem[1]} 
+      id={elem[0]} 
+      handleChange={listCheck} 
+      menuClick={() => console.log("todo")} 
+      icon={sectionIcons[elem[1].list]}
+  />)
   const donePrior = list
     .filter(elem => !elem[1].toDo && elem[1].priority)
-    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
-
-  // console.log(new Date(new Date()-DAY))
+    .map((elem, idx) => <ListItem 
+      key={idx} 
+      item={elem[1]} 
+      id={elem[0]} 
+      handleChange={listCheck} menuClick={() => console.log("todo")} 
+      icon={sectionIcons[elem[1].list]}
+  />)
 
   const toDoCounts = [toDoPlants.length, pendBills.length, pendFit.length, toDoPrior.length]
 

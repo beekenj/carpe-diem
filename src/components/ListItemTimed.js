@@ -23,7 +23,7 @@ export default function ListItem(props) {
                     color: now <= lastChecked+checkFreq && "gray",
                 }
         }>
-            <div className="clickArea">
+            <label className="clickArea">
                 <input 
                     type="checkbox" 
                     checked={now <= lastChecked+checkFreq}
@@ -32,7 +32,8 @@ export default function ListItem(props) {
                     id={props.id}
                     // item = {props.item}
                 />
-            </div>
+                <span className="checkmark"></span>
+            </label>
             <div className="itemName">
                 {itemName.length < MAXLENGTH ? 
                     itemName :
@@ -42,7 +43,7 @@ export default function ListItem(props) {
             <div>
                {(checkFreq/DAY)-((d.setHours(0,0,0,0)-lastChecked)/DAY)}
             </div>
-            <div className="clickArea" onClick={() => props.menuClick(props.id)}>
+            <div className="iconArea" onClick={() => props.menuClick(props.id)}>
                 <FontAwesomeIcon icon={faEllipsisV} />
             </div>
         </div>

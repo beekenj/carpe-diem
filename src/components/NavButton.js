@@ -2,8 +2,8 @@ import './NavButton.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
     faCoffee, 
-    faHourglassStart, 
-    faHourglassEnd, 
+    // faHourglassStart, 
+    // faHourglassEnd, 
     faMoon, 
     faPlus,
     faLeaf,
@@ -11,14 +11,16 @@ import {
     faHeartPulse,
     faTasks,
     faExclamationTriangle,
+    faBed,
+    faSun,
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function NavButton(props) {
     const iconObj = {
         "Morning":faCoffee,
-        "Afternoon":faHourglassStart,
-        "Evening":faHourglassEnd,
-        "Night":faMoon,
+        "Afternoon":faSun,
+        "Evening":faMoon,
+        "Night":faBed,
         "Add":faPlus,
         "Plants":faLeaf,
         "Bills":faCreditCard,

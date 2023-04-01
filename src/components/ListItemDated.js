@@ -22,19 +22,19 @@ export default function ListItem(props) {
             style={
                 {
                     background: props.selected && "lightgray",
-                    color: dueDate-(DAY*5) > now && "gray",
+                    color: dueDate-(DAY*4) > now && "gray" ||
+                            dueDate < now && "red",
                 }
         }>
-            <div className="clickArea">
+            <label className="clickArea">
                 <input 
                     type="checkbox" 
-                    checked={dueDate-(DAY*5) > now}
-                    // value={!toDo}
+                    checked={dueDate-(DAY*4) > now}
                     onChange={props.handleChange}
                     id={props.id}
-                    // item = {props.item}
                 />
-            </div>
+                <span className="checkmark"></span>
+            </label>
             <div className="itemName">
                 {itemName.length < MAXLENGTH ? 
                     itemName :
@@ -45,7 +45,7 @@ export default function ListItem(props) {
                {/* {(checkFreq/DAY)-((d.setHours(0,0,0,0)-lastChecked)/DAY)} */}
                {props.item.dueDate.slice(4, 10)}
             </div>
-            <div className="clickArea" onClick={() => props.menuClick(props.id)}>
+            <div className="iconArea" onClick={() => props.menuClick(props.id)}>
                 <FontAwesomeIcon icon={faEllipsisV} />
             </div>
         </div>

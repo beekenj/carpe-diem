@@ -9,19 +9,20 @@ export default function ListItem(props) {
     const MAXLENGTH = 25
     const itemName = props.item.name
     const toDo = props.item.toDo
+
+    // console.log(props.icon)
     
-    // console.log(typeof(itemInCart))
     return (
         <div className="container" style={{background: props.selected && "lightgray"}}>
-            <div className="clickArea">
+            <div className="clickArea" onClick={() => props.handleChange(toDo, props.id)}>
                 <input 
                     type="checkbox" 
                     checked={!toDo}
                     value={!toDo}
                     onChange={props.handleChange}
                     id={props.id}
-                    // item = {props.item}
                 />
+                <span className="checkmark"></span>
             </div>
             <div className="itemName">
                 {itemName.length < MAXLENGTH ? 
@@ -29,8 +30,11 @@ export default function ListItem(props) {
                     itemName.slice(0,MAXLENGTH) + "..."
                 }
             </div>
-            <div className="clickArea" onClick={() => props.menuClick(props.id)}>
-                <FontAwesomeIcon icon={faChevronCircleRight} />
+            <div className="iconArea" onClick={() => props.menuClick(props.id)}>
+                {props.icon ? 
+                    <FontAwesomeIcon icon={props.icon} /> :
+                    <FontAwesomeIcon icon={faChevronCircleRight} />
+                }
             </div>
         </div>
     )
