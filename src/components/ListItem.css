@@ -32,3 +32,11 @@
     max-width: 280x;
     height: 25px;
 }
+
+.item-date {
+    min-width: 80px;
+}
+
+.item-days-left {
+    min-width: 35px;
+}

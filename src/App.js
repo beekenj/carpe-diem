@@ -3,8 +3,8 @@ import './App.css';
 import AddItem from './components/AddItem';
 import NavButton from './components/NavButton';
 import ListItem from './components/ListItem';
-import ListItemTimed from './components/ListItemTimed';
-import ListItemDated from './components/ListItemDated';
+import ListFull from './components/ListFull';
+import ModItem from './components/ModItem';
 
 import { useEffect, useState } from 'react';
 
@@ -16,7 +16,7 @@ import {
   onValue, 
   push, 
   set, 
-  // remove 
+  remove, 
 } from "firebase/database"
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -54,8 +54,7 @@ function App() {
   const [sectionSelect, setSectionSelect] = useState("Tasks")
   const [addSelect, setAddSelect] = useState(false)
   const [fitDay, setFitDay] = useState(weekday[d.getDay()])
-
-  // console.log(fitDay)
+  const [selectedItemId, setSelectedItemId] = useState(null)
 
   useEffect(() => {
     onValue(listInDB, function(snapshot) {
@@ -63,52 +62,51 @@ function App() {
         let listArray = Object.entries(snapshot.val())  
         setList(listArray)
         setObj(snapshot.val())
-      } else {
-        // alert("Failed to fetch db snapshot")
       }
     })
   }, [])
 
   function addClick(newEntry) {
-    // console.log(newEntry)
     push(listInDB, newEntry)
     setAddSelect(false)
   }
 
   function listCheck(checked, id) {
-    // const {id, checked} = event.target
     const item = obj[id]
-    // console.log(checked, id)
     if (!id) return
     set(ref(database, "carpeDiem/" + id), {
       ...item,
       "toDo" : checked ? false : true, 
     })
+    .catch((error) => console.log(error))
+  }
+
+  function countClick(id) {
+    const item = obj[id]
+    if (!id) return
+    set(ref(database, "carpeDiem/" + id), {
+      ...item,
+      "count" : item.count > 0 ? item.count-1 : 0,
+      "toDo" : item.count <= 1 ? false : true,
+    })
+    .catch((error) => console.log(error))
   }
 
   function resetDay() {
     if (list.filter(elem => elem[1].toDo && !elem[1].type).length === 0 ||
         window.confirm('Reset?')) {
       list
-      .filter(elem => !elem[1].type)
+      .filter(elem => !elem[1].type || elem[1].type === "Fitness")
       .forEach(elem => {
         const id = elem[0]
         const item = obj[id]
         set(ref(database, "carpeDiem/" + id), {
           ...item,
           "toDo" : true, 
-          "list" : item.defaultList,
+          "list" : !item.type && item.defaultList,
+          "count" : item.checkType === "count" && item.defaultCount
         })
-      })
-      list
-      .filter(elem => elem[1].type === "Fitness")
-      .forEach(elem => {
-        const id = elem[0]
-        const item = obj[id]
-        set(ref(database, "carpeDiem/" + id), {
-          ...item,
-          "toDo" : true, 
-        })
+        .catch((error) => console.log(error))
       })
       setFitDay(weekday[d.getDay()])
     }
@@ -120,21 +118,20 @@ function App() {
       ...item,
       "list" : item.list < 3 ? item.list+1 : item.list,
     })
+    .catch((error) => console.log(error))
   }
 
-  function timedCheck(event) {
-    const {id} = event.target
+  function timedCheck(_, id) {
     const item = obj[id]
     const d = new Date()
-    // console.log(d.setHours(0,0,0,0))
     set(ref(database, "carpeDiem/" + id), {
       ...item,
       "lastChecked" : d.setHours(0,0,0,0),
     })
+    .catch((error) => console.log(error))
   }
 
-  function billCheck(event) {
-    const {id} = event.target
+  function billCheck(_, id) {
     const item = obj[id]
     const dueDate = new Date(item.dueDate)
     let newDate
@@ -147,90 +144,81 @@ function App() {
       ...item,
       "dueDate" : newDate,
     })
-    // console.log(newDate)
+    .catch((error) => console.log(error))
   }
 
-  // function getNextGivenDay(dayOfWeek, weekOfMonth) {
-  //   const now = new Date()
-  //   const year = now.getFullYear()
-  //   const month = now.getMonth()
-  //   const date = new Date(year, month+1, 1)
-  //   return (new Date(year, month+1, 1-(date.getDay()-dayOfWeek)+7*weekOfMonth))
-  // }
-  // console.log(getNextGivenDay(1, 3))
-  // console.log(new Date().setHours(0,0,0,0)-(DAY*34))
+  function selectItem(id) {
+    setSelectedItemId(prev => prev === id ? null : id)
+  }
 
+  function editItem(id, newObj) {
+    if (!id || !newObj) return
+    set(ref(database, "carpeDiem/" + id), newObj)
+    setSelectedItemId(null)
+  }
+
+  // delete
+  function removeItem(id) {
+    if (!id) return
+    if (window.confirm("Delete Item?")) {
+      let exactLocationOfItemDB = ref(database, `carpeDiem/${id}`)
+        
+      remove(exactLocationOfItemDB)
+    }
+    setSelectedItemId(null)
+  }
+
+  // Sorting
   list.sort((i1, i2) => 
     // Sort timed by next up
-    ((i1[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i1[1].lastChecked)/DAY) >
-    (i2[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY)) ||
-    // Sort dated by date
-    (new Date(i1[1].dueDate) > new Date((i2[1].dueDate)))
+    ((i1[1].checkFreq)-((d.setHours(0,0,0,0)-i1[1].lastChecked)/DAY) >
+    (i2[1].checkFreq)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY))
     ? 1 :
     // Sort timed by next up
-    ((i1[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i1[1].lastChecked)/DAY) <
-    (i2[1].checkFreq/DAY)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY)) ||
-    // Sort dated by date
-    (new Date(i1[1].dueDate) < new Date((i2[1].dueDate)))
+    ((i1[1].checkFreq)-((d.setHours(0,0,0,0)-i1[1].lastChecked)/DAY) <
+    (i2[1].checkFreq)-((d.setHours(0,0,0,0)-i2[1].lastChecked)/DAY))
     ? -1 : 0
   )
+
+  list.sort((i1,i2) => new Date(i1[1].dueDate) - new Date(i2[1].dueDate))
 
   // Setup DOM content
   const toDoList = list.map((_, idx) => 
     list
       .filter(elem => elem[1].toDo && elem[1].list === idx)
-      .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={delayItem} />)
+      .map((elem, idx) => 
+        <ListItem 
+          key={idx} 
+          item={elem[1]} 
+          id={elem[0]} 
+          handleChange={listCheck} 
+          menuClick={delayItem} 
+          onHold={selectItem} 
+          selected={selectedItemId===elem[0]} 
+        />)
   )
   const doneList = list.map((_, idx) => 
     list
       .filter(elem => !elem[1].toDo && elem[1].list === idx)
-      .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={delayItem} />)
+      .map((elem, idx) => 
+        <ListItem 
+          key={idx} 
+          item={elem[1]} 
+          id={elem[0]} 
+          handleChange={listCheck} 
+          menuClick={delayItem} 
+          onHold={selectItem} 
+          selected={selectedItemId===elem[0]} 
+        />)
   )
-  const toDoPlants = list
-    .filter(elem => elem[1].type === "Plants" && Date.now() >= elem[1].lastChecked+elem[1].checkFreq)
-    .map((elem, idx) => <ListItemTimed key={idx} item={elem[1]} id={elem[0]} handleChange={timedCheck} menuClick={() => console.log("todo")} />)
-  const donePlants = list
-    .filter(elem => elem[1].type === "Plants" && Date.now() < elem[1].lastChecked+elem[1].checkFreq)
-    .map((elem, idx) => <ListItemTimed key={idx} item={elem[1]} id={elem[0]} handleChange={() => console.log("no")} menuClick={() => console.log("todo")} />)
-  const toDoBills = list
-    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate)-(DAY*4) <= new Date())
-    .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={billCheck} menuClick={() => console.log("todo")} />)
-  const doneBills = list
-    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate)-(DAY*4) > new Date())
-    .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={() => console.log("no")} menuClick={() => console.log("todo")} />)
-  const pendBills = list
-    .filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date())
-    .map((elem, idx) => <ListItemDated key={idx} item={elem[1]} id={elem[0]} handleChange={billCheck} menuClick={() => console.log("todo")} />)
-  const toDoFit = list
-    .filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[fitDay] && elem[1].toDo)
-    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
-  const pendFit = list
-    .filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].toDo)
-    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
-  const doneFit = list
-    .filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[fitDay] && !elem[1].toDo)
-    .map((elem, idx) => <ListItem key={idx} item={elem[1]} id={elem[0]} handleChange={listCheck} menuClick={() => console.log("todo")} />)
-  const toDoPrior = list
-    .filter(elem => elem[1].toDo && elem[1].priority)
-    .map((elem, idx) => <ListItem 
-      key={idx} 
-      item={elem[1]} 
-      id={elem[0]} 
-      handleChange={listCheck} 
-      menuClick={() => console.log("todo")} 
-      icon={sectionIcons[elem[1].list]}
-  />)
-  const donePrior = list
-    .filter(elem => !elem[1].toDo && elem[1].priority)
-    .map((elem, idx) => <ListItem 
-      key={idx} 
-      item={elem[1]} 
-      id={elem[0]} 
-      handleChange={listCheck} menuClick={() => console.log("todo")} 
-      icon={sectionIcons[elem[1].list]}
-  />)
 
-  const toDoCounts = [toDoPlants.length, pendBills.length, pendFit.length, toDoPrior.length]
+  // Calculate list lengths for notifications
+  const toDoCounts = [
+    list.filter(elem => Date.now() >= elem[1].lastChecked+elem[1].checkFreq*DAY).length, 
+    list.filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date()).length, 
+    list.filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].toDo).length, 
+    list.filter(elem => elem[1].toDo && elem[1].priority).length
+  ]
 
   return (
     <>
@@ -245,11 +233,11 @@ function App() {
           />
           {addSections.map((section, idx) => 
             <NavButton 
-            key={idx} 
-            section={section} 
-            handleClick={setSectionSelect} 
-            sectionSelect={sectionSelect}
-            toDo={toDoCounts[idx]}
+              key={idx} 
+              section={section} 
+              handleClick={setSectionSelect} 
+              sectionSelect={sectionSelect}
+              toDo={toDoCounts[idx]}
             />
             )}
           <button 
@@ -269,70 +257,129 @@ function App() {
         <div className='inner-content'>
           <AddItem addClick={addClick} />
         </div> :
-        <>
-          {sectionSelect === "Tasks" && 
-            <div>
-              <div className="inner-content">
-                {sections.map((section, idx) => 
-                  listSelect === section && [toDoList[idx], doneList[idx]]
-                )}
-                <div style={{height:"35px"}} />
-              </div>
-              {/* Bottom bar */}
-              <div className="btn-group">
-                {sections.map((section, idx) => 
-                  <NavButton 
-                  key={idx} 
-                  section={section} 
-                  handleClick={setListSelect} 
-                  sectionSelect={listSelect}
-                  />
+          <>
+            {sectionSelect === "Tasks" && 
+              <div>
+                <div className="inner-content">
+                  {sections.map((section, idx) => 
+                    listSelect === section && [toDoList[idx], doneList[idx]]
                   )}
+                  <div style={{height:"35px"}} />
+                </div>
+                {/* Bottom bar */}
+                <div className="btn-group">
+                  {sections.map((section, idx) => 
+                    <NavButton 
+                      key={idx} 
+                      section={section} 
+                      handleClick={setListSelect} 
+                      sectionSelect={listSelect}
+                    />
+                    )}
+                </div>
               </div>
-            </div>
-          }
-          {sectionSelect === "Plants" && 
-            <div>
-              <div className="inner-content">
-                {toDoPlants}              
-                {donePlants}              
-              </div>
-            </div>
-          }
-          {sectionSelect === "Bills" && 
-            <div>
-              <div className="inner-content">
-                {toDoBills}              
-                {doneBills}              
-              </div>
-            </div>
-          }
-          {sectionSelect === "Fitness" &&
-          <><div className="inner-content">
-            {toDoFit}
-            {doneFit}
-          </div>
-          <div className='days-bottom'>
-          {weekday.map((day, idx) => 
-            <div 
-              className='button'
-              style={{color: fitDay === day ? "rgb(179, 255, 160)" : "white"}}
-              key={idx} 
-              id={day} 
-              onClick={() => setFitDay(day)}
-            >
-            {day}
-          </div>)}
-      </div></>
-          }
-          {sectionSelect === "Priority" &&
-            <div className='inner-content'>
-              {toDoPrior}
-              {donePrior}
-            </div>
-          }
-        </>
             }
+            {sectionSelect === "Plants" && 
+              <div className="inner-content">
+                <ListFull 
+                  list={list} 
+                  type="Plants" 
+                  filter={elem => Date.now() >= elem[1].lastChecked+(elem[1].checkFreq*DAY)} 
+                  handleChange={timedCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
+                <ListFull 
+                  list={list} 
+                  type="Plants" 
+                  filter={elem => Date.now() < elem[1].lastChecked+(elem[1].checkFreq*DAY)} 
+                  handleChange={() => console.log("undo?")} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
+              </div>
+            }
+            {sectionSelect === "Bills" && 
+              <div className="inner-content">                
+                <ListFull 
+                  list={list} 
+                  type="Bills" 
+                  filter={elem => new Date(elem[1].dueDate)-(DAY*4) <= new Date()} 
+                  handleChange={billCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />                
+                <ListFull 
+                  list={list} 
+                  type="Bills" 
+                  filter={elem => new Date(elem[1].dueDate)-(DAY*4) > new Date()} 
+                  handleChange={() => console.log("undo?")} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
+              </div>
+            }
+            {sectionSelect === "Fitness" &&
+            <>
+              <div className="inner-content">            
+                <ListFull 
+                  list={list} 
+                  type="Fitness" 
+                  filter={elem => elem[1].whichDays[fitDay] && elem[1].toDo} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                  countClick={countClick}
+                />
+                <ListFull 
+                  list={list} 
+                  type="Fitness" 
+                  filter={elem => elem[1].whichDays[fitDay] && !elem[1].toDo} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                  countClick={countClick}
+                />
+              </div>
+              <div className='days-bottom'>
+                {weekday.map((day, idx) => 
+                  <div 
+                    className='button'
+                    style={{color: fitDay === day ? "rgb(179, 255, 160)" : "white"}}
+                    key={idx} 
+                    id={day} 
+                    onClick={() => setFitDay(day)}
+                  >
+                  {day}
+                </div>)}
+              </div>
+            </>
+            }
+            {sectionSelect === "Priority" &&
+              <div className='inner-content'>                
+                <ListFull 
+                  list={list} 
+                  filter={elem => elem[1].toDo && elem[1].priority} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                  icon={elem => sectionIcons[elem[1].list]}
+                />              
+                <ListFull 
+                  list={list} 
+                  filter={elem => !elem[1].toDo && elem[1].priority} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                  icon={elem => sectionIcons[elem[1].list]}
+                />
+              </div>
+            }
+            {selectedItemId &&
+              <ModItem id={selectedItemId} item={obj[selectedItemId]} editItem={editItem} removeItem={removeItem} />
+            }
+          </>
+        }
     </>
   );
 }

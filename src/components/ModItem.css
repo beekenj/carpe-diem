@@ -1,0 +1,68 @@
+.mod-group .button {
+    background-color: #3b3b3d; /* Gray */
+    border: none;
+    color: white;
+    padding: 15px 25px;
+    /* width: 33.333333333%; */
+    /* width: 25%; */
+    height: 100%;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    /* float: left; */
+}
+
+.mod-group .select {
+    background-color: #3b3b3d; /* Gray */
+    border: none;
+    color: white;
+    padding: 15px 12px;
+    /* width: 33.333333333%; */
+    /* width: 25%; */
+    height: 100%;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    /* float: left; */
+}
+
+.mod-group {
+    display: flex;
+    justify-content: space-between;
+    position: fixed;
+    background-color: #3b3b3d; /* Gray */
+    bottom: 0px;
+    width: 100%;
+    height: 55px;
+  }
+
+  .water-input {
+    background-color: #d4d4d4;
+    border-radius: 8px;
+    margin-top: 10px;
+    height: 30px;
+    width: 50px;
+  }
+
+  .date-picker {
+    margin-top: 15px;
+    background-color: #d4d4d4;
+  }
+  
+  .days-container-mods {
+    width: 200px;
+    display: flex;
+    justify-content: space-around;
+    /* background-color: #002a43; */
+    color: #ffffff;
+    border: 0;
+    align-items: center;
+    /* margin: 5px 0; */
+    border-radius: 8px;
+    min-height: 55px;
+    font-size: 20px;
+  }

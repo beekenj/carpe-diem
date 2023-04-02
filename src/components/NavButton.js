@@ -1,18 +1,18 @@
 import './NavButton.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
-    faCoffee, 
     // faHourglassStart, 
     // faHourglassEnd, 
+    faCoffee, 
+    faSun,
     faMoon, 
+    faBed,
     faPlus,
     faLeaf,
     faCreditCard,
     faHeartPulse,
     faTasks,
     faExclamationTriangle,
-    faBed,
-    faSun,
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function NavButton(props) {

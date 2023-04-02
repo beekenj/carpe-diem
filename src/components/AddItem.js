@@ -11,7 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function AddItem(props) {
-    const DAY = 86400000
+    // const DAY = 86400000
     const sections = ["Morning", "Afternoon", "Evening", "Night"]
     const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
 
@@ -31,6 +31,7 @@ export default function AddItem(props) {
         Sa:false,
     })
     const [checkType, setCheckType] = useState("checked")
+    const [count, setCount] = useState(5)
     // console.log(checkType)
 
     function dayChange(event) {
@@ -57,11 +58,11 @@ export default function AddItem(props) {
                 alert("Please enter a value for water frequency")
                 return
             }
-            newEntry = {name:name, checkFreq:waterVal*DAY, lastChecked:d.setHours(0,0,0,0), type:sectionSelect}
+            newEntry = {name:name, checkFreq:Number(waterVal), lastChecked:d.setHours(0,0,0,0), type:sectionSelect}
         } else if (sectionSelect === "Bills") {
             newEntry = {name:name, dueDate:dateVal.toDateString(), taskFreq:billFreq, type:sectionSelect}
         } else if (sectionSelect === "Fitness") {
-            newEntry = {name:name, toDo:true, isCheck:true, whichDays:whichDays, checkType:checkType, type:sectionSelect}
+            newEntry = {name:name, toDo:true, isCheck:true, whichDays:whichDays, checkType:checkType, type:sectionSelect, count:Number(count), defaultCount:Number(count)}
         }
         props.addClick(newEntry)
     }
@@ -192,6 +193,16 @@ export default function AddItem(props) {
                             />
                             <label htmlFor="count">Count</label>
                         </div>
+                            {checkType === "count" && 
+                                <div>
+                                    <input 
+                                        className='count-input' 
+                                        type='number' 
+                                        value={count}
+                                        onChange={e => setCount(e.target.value)}
+                                    />
+                                </div>
+                            }
                     </fieldset>
                 </>
             }

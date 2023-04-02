@@ -1,4 +1,5 @@
 import "./ListItem.css"
+import { useState, useRef, useEffect } from "react"
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
     // faEllipsisV,
@@ -7,18 +8,81 @@ import {
 
 export default function ListItem(props) {
     const MAXLENGTH = 25
+    const DAY = 86400000
     const itemName = props.item.name
     const toDo = props.item.toDo
+    const dueDate = new Date(props.item.dueDate)
+    const lastChecked = props.item.lastChecked
+    const checkFreq = props.item.checkFreq
+    const now = Date.now()
+    const d = new Date()
 
-    // console.log(props.icon)
+    const [counter, setCounter] = useState(0)
+    const intervalRef = useRef(null)
+
+    useEffect(() => {
+        return () => stopCounter()
+    }, [])
+
+    useEffect(() => {
+        if (counter > 50) {
+            props.onHold(props.id)
+            setCounter(0)
+            stopCounter()
+        }
+    }, [counter, props])
+
+    function startCounter() {
+        if (intervalRef.current) return
+        intervalRef.current = setInterval(() => {
+            setCounter((prevCounter) => prevCounter + 1)
+        }, 10)
+    }
+
+    function stopCounter() {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current)
+            intervalRef.current = null
+        }
+    }
+
+    // console.log(counter)
+
+    const checked = (
+        (!props.item.type || props.item.type === "Fitness") ? !toDo :
+        props.item.type === "Bills" ? dueDate-(DAY*4) > now :
+        props.item.type === "Plants" ? now <= lastChecked+(checkFreq*DAY) : 
+        false
+    )
+    // console.log(dueDate, dueDate+DAY < new Date(now))
     
     return (
-        <div className="container" style={{background: props.selected && "lightgray"}}>
-            <div className="clickArea" onClick={() => props.handleChange(toDo, props.id)}>
+        <div 
+            className="container" 
+            style={{
+                background: props.selected && "lightgray",
+                color: ((dueDate-DAY > now && "gray") ||
+                        (dueDate < now-DAY && "red")) ||
+                        (now <= lastChecked+(checkFreq*DAY) && "gray"),
+            }} 
+            onMouseDown={startCounter}
+            onMouseUp={stopCounter}
+            onMouseLeave={stopCounter}
+            onTouchStart={startCounter}
+            onTouchEnd={stopCounter}
+            onTouchMove={stopCounter}
+        >
+            <div 
+                className="clickArea" 
+                onClick={props.item.checkType === "count" ?
+                    () => props.countClick(props.id) :
+                    () => props.handleChange(toDo, props.id)
+                }
+            >
                 <input 
                     type="checkbox" 
-                    checked={!toDo}
-                    value={!toDo}
+                    checked={checked}
+                    value={checked}
                     onChange={props.handleChange}
                     id={props.id}
                 />
@@ -30,12 +94,29 @@ export default function ListItem(props) {
                     itemName.slice(0,MAXLENGTH) + "..."
                 }
             </div>
-            <div className="iconArea" onClick={() => props.menuClick(props.id)}>
-                {props.icon ? 
-                    <FontAwesomeIcon icon={props.icon} /> :
-                    <FontAwesomeIcon icon={faChevronCircleRight} />
-                }
-            </div>
+            {(!props.item.type) &&
+                <div className="iconArea" onClick={props.menuClick && (() => props.menuClick(props.id))}>
+                    {props.icon ? 
+                        <FontAwesomeIcon icon={props.icon} /> :
+                        <FontAwesomeIcon icon={faChevronCircleRight} />
+                    }
+                </div>
+            }
+            {props.item.type === "Bills" &&
+                <div className="item-date">
+                    {props.item.dueDate.slice(4, 10)}
+                </div>
+            }
+            {props.item.type === "Plants" &&
+                <div className="item-days-left">
+                    {(checkFreq)-((d.setHours(0,0,0,0)-lastChecked)/DAY)}
+                </div>
+            }
+            {props.item.type === "Fitness" &&
+                <div className="item-days-left">
+                    {props.item.count}
+                </div>
+            }
         </div>
     )
 }
