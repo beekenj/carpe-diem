@@ -50,11 +50,16 @@ function App() {
   // state
   const [list, setList] = useState([])
   const [obj, setObj] = useState({})
-  const [listSelect, setListSelect] = useState("Morning")
-  const [sectionSelect, setSectionSelect] = useState("Tasks")
+  const [listSelect, setListSelect] = useState(localStorage.getItem("listSelect") || "Morning")
+  const [sectionSelect, setSectionSelect] = useState(localStorage.getItem("sectionSelect") || "Tasks")
   const [addSelect, setAddSelect] = useState(false)
   const [fitDay, setFitDay] = useState(weekday[d.getDay()])
   const [selectedItemId, setSelectedItemId] = useState(null)
+
+  useEffect(() => {
+    localStorage.setItem("listSelect", listSelect)
+    localStorage.setItem("sectionSelect", sectionSelect)
+  }, [listSelect, sectionSelect])
 
   useEffect(() => {
     onValue(listInDB, function(snapshot) {
@@ -110,6 +115,8 @@ function App() {
       })
       setFitDay(weekday[d.getDay()])
     }
+    setListSelect("Morning")
+    setSectionSelect("Tasks")
   }
 
   function delayItem(id) {
