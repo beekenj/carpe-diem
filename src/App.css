@@ -1,5 +1,7 @@
 html, body {
   user-select: none;
+  /* background-color: #002a43; */
+  background-color: #1e1f26;
 }
 
 .inner-content {
@@ -99,7 +101,9 @@ html, body {
   left: 0px;
   height: 20px;
   width: 20px;
-  background-color: #eee;
+  background-color: #c4c4c4;
+  border-color: #c4c4c4;
+  /* border-color: #ffffff; */
   border-style: solid;
   border-width: 1px;
   border-radius: 2px;
