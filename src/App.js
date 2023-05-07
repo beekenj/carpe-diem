@@ -17,6 +17,7 @@ import {
   push, 
   set, 
   remove, 
+  // update, 
 } from "firebase/database"
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -107,6 +108,7 @@ function App() {
         const item = obj[id]
         set(ref(database, "carpeDiem/" + id), {
           ...item,
+          "donePreviously" : item.toDo ? false : true, 
           "toDo" : true, 
           "list" : !item.type && item.defaultList,
           "count" : item.checkType === "count" && item.defaultCount
@@ -202,6 +204,7 @@ function App() {
           menuClick={delayItem} 
           onHold={selectItem} 
           selected={selectedItemId===elem[0]} 
+          donePreviously = {elem[1].donePreviously}
         />)
   )
   const doneList = list.map((_, idx) => 
@@ -216,6 +219,7 @@ function App() {
           menuClick={delayItem} 
           onHold={selectItem} 
           selected={selectedItemId===elem[0]} 
+          donePreviously = {elem[1].donePreviously}
         />)
   )
 
@@ -246,11 +250,8 @@ function App() {
               sectionSelect={sectionSelect}
               toDo={toDoCounts[idx]}
             />
-            )}
-          <button 
-            className='button'
-            onClick={() => setAddSelect(prev => !prev)}
-          >
+          )}
+          <button className='button' onClick={() => setAddSelect(prev => !prev)} >
             <FontAwesomeIcon icon={faPlus} />
           </button>
         </div>
@@ -264,71 +265,71 @@ function App() {
         <div className='inner-content'>
           <AddItem addClick={addClick} />
         </div> :
-          <>
-            {sectionSelect === "Tasks" && 
-              <div>
-                <div className="inner-content">
-                  {sections.map((section, idx) => 
-                    listSelect === section && [toDoList[idx], doneList[idx]]
-                  )}
-                  <div style={{height:"35px"}} />
-                </div>
-                {/* Bottom bar */}
-                <div className="btn-group">
-                  {sections.map((section, idx) => 
-                    <NavButton 
-                      key={idx} 
-                      section={section} 
-                      handleClick={setListSelect} 
-                      sectionSelect={listSelect}
-                    />
-                    )}
-                </div>
-              </div>
-            }
-            {sectionSelect === "Plants" && 
+        <>
+          {sectionSelect === "Tasks" && 
+            <div>
               <div className="inner-content">
-                <ListFull 
-                  list={list} 
-                  type="Plants" 
-                  filter={elem => Date.now() >= elem[1].lastChecked+(elem[1].checkFreq*DAY)} 
-                  handleChange={timedCheck} 
-                  onHold={selectItem} 
-                  selectedItemId={selectedItemId} 
-                />
-                <ListFull 
-                  list={list} 
-                  type="Plants" 
-                  filter={elem => Date.now() < elem[1].lastChecked+(elem[1].checkFreq*DAY)} 
-                  handleChange={() => console.log("undo?")} 
-                  onHold={selectItem} 
-                  selectedItemId={selectedItemId} 
-                />
+                {sections.map((section, idx) => 
+                  listSelect === section && [toDoList[idx], doneList[idx]]
+                )}
+                <div style={{height:"35px"}} />
               </div>
-            }
-            {sectionSelect === "Bills" && 
-              <div className="inner-content">                
-                <ListFull 
-                  list={list} 
-                  type="Bills" 
-                  filter={elem => new Date(elem[1].dueDate)-(DAY*4) <= new Date()} 
-                  handleChange={billCheck} 
-                  onHold={selectItem} 
-                  selectedItemId={selectedItemId} 
-                />                
-                <ListFull 
-                  list={list} 
-                  type="Bills" 
-                  filter={elem => new Date(elem[1].dueDate)-(DAY*4) > new Date()} 
-                  handleChange={() => console.log("undo?")} 
-                  onHold={selectItem} 
-                  selectedItemId={selectedItemId} 
-                />
+              {/* Bottom bar for Tasks */}
+              <div className="btn-group">
+                {sections.map((section, idx) => 
+                  <NavButton 
+                    key={idx} 
+                    section={section} 
+                    handleClick={setListSelect} 
+                    sectionSelect={listSelect}
+                  />
+                  )}
               </div>
-            }
-            {sectionSelect === "Fitness" &&
+            </div>
+          }
+          {sectionSelect === "Plants" && 
+            <div className="inner-content">
+              <ListFull 
+                list={list} 
+                type="Plants" 
+                filter={elem => Date.now() >= elem[1].lastChecked+(elem[1].checkFreq*DAY)} 
+                handleChange={timedCheck} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
+              />
+              <ListFull 
+                list={list} 
+                type="Plants" 
+                filter={elem => Date.now() < elem[1].lastChecked+(elem[1].checkFreq*DAY)} 
+                handleChange={() => console.log("undo?")} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
+              />
+            </div>
+          }
+          {sectionSelect === "Bills" && 
+            <div className="inner-content">                
+              <ListFull 
+                list={list} 
+                type="Bills" 
+                filter={elem => new Date(elem[1].dueDate)-(DAY*4) <= new Date()} 
+                handleChange={billCheck} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
+              />                
+              <ListFull 
+                list={list} 
+                type="Bills" 
+                filter={elem => new Date(elem[1].dueDate)-(DAY*4) > new Date()} 
+                handleChange={() => console.log("undo?")} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
+              />
+            </div>
+          }
+          {sectionSelect === "Fitness" &&
             <>
-              <div className="inner-content">            
+              <div className="inner-content">
                 <ListFull 
                   list={list} 
                   type="Fitness" 
@@ -361,32 +362,32 @@ function App() {
                 </div>)}
               </div>
             </>
-            }
-            {sectionSelect === "Priority" &&
-              <div className='inner-content'>                
-                <ListFull 
-                  list={list} 
-                  filter={elem => elem[1].toDo && elem[1].priority} 
-                  handleChange={listCheck} 
-                  onHold={selectItem} 
-                  selectedItemId={selectedItemId} 
-                  icon={elem => sectionIcons[elem[1].list]}
-                />              
-                <ListFull 
-                  list={list} 
-                  filter={elem => !elem[1].toDo && elem[1].priority} 
-                  handleChange={listCheck} 
-                  onHold={selectItem} 
-                  selectedItemId={selectedItemId} 
-                  icon={elem => sectionIcons[elem[1].list]}
-                />
-              </div>
-            }
-            {selectedItemId &&
-              <ModItem id={selectedItemId} item={obj[selectedItemId]} editItem={editItem} removeItem={removeItem} />
-            }
-          </>
-        }
+          }
+          {sectionSelect === "Priority" &&
+            <div className='inner-content'>                
+              <ListFull 
+                list={list} 
+                filter={elem => elem[1].toDo && elem[1].priority} 
+                handleChange={listCheck} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
+                icon={elem => sectionIcons[elem[1].list]}
+              />              
+              <ListFull 
+                list={list} 
+                filter={elem => !elem[1].toDo && elem[1].priority} 
+                handleChange={listCheck} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
+                icon={elem => sectionIcons[elem[1].defaultList]}
+              />
+            </div>
+          }
+          {selectedItemId &&
+            <ModItem id={selectedItemId} item={obj[selectedItemId]} editItem={editItem} removeItem={removeItem} />
+          }
+        </>
+      }
     </>
   );
 }

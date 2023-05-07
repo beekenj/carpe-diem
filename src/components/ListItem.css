@@ -12,6 +12,7 @@
     justify-content: space-between;
     background-color: #474857;
     color: white;
+    border: solid #474857 1px;
 }
 
 .container:hover {

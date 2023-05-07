@@ -15,6 +15,7 @@ export default function ListFull({list, type, filter, handleChange, menuClick, o
             selected={selectedItemId===elem[0]} 
             icon={icon && icon(elem)}
             countClick={countClick}
+            donePreviously = {elem[1].donePreviously}
         />)
     )
   }
