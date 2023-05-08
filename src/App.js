@@ -189,7 +189,15 @@ function App() {
     ? -1 : 0
   )
 
-  list.sort((i1,i2) => new Date(i1[1].dueDate) - new Date(i2[1].dueDate))
+  // console.log(new Date("Mon Jun 05 2023") - new Date("Mon May 15 2023"))
+  // console.log(list.filter(item => item[1].type === "Bills").filter(item => item[1].dueDate))
+
+  list
+    // .filter(item => item[1].type === "Bills")
+    .sort((i1,i2) => {
+      // console.log(i1[1].name, i2[1].name)
+      // console.log(new Date(i1[1].dueDate) - new Date(i2[1].dueDate))
+      return new Date(i1[1].dueDate) - new Date(i2[1].dueDate)})
 
   // Setup DOM content
   const toDoList = list.map((_, idx) => 
