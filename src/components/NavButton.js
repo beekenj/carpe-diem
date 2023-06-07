@@ -13,6 +13,7 @@ import {
     faHeartPulse,
     faTasks,
     faExclamationTriangle,
+    faCalendar,
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function NavButton(props) {
@@ -27,6 +28,7 @@ export default function NavButton(props) {
         "Fitness":faHeartPulse,
         "Tasks":faTasks,
         "Priority":faExclamationTriangle,
+        "Planner":faCalendar,
     }
     return (
         <>

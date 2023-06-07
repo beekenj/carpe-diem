@@ -5,6 +5,7 @@ import NavButton from './components/NavButton';
 import ListItem from './components/ListItem';
 import ListFull from './components/ListFull';
 import ModItem from './components/ModItem';
+import AddButton from './components/AddButton';
 
 import { useEffect, useState } from 'react';
 
@@ -23,7 +24,6 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
     faRefresh,
-    faPlus,
     faCoffee, 
     faSun,
     faMoon, 
@@ -44,7 +44,7 @@ function App() {
   const DAY = 86400000
   const d = new Date()
   const sections = ["Morning", "Afternoon", "Evening", "Night"]
-  const addSections = ["Plants", "Bills", "Fitness", "Priority"]
+  const addSections = ["Plants", "Bills", "Fitness", "Planner", "Priority"]
   const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
   const sectionIcons = [faCoffee, faSun, faMoon, faBed]
   
@@ -115,6 +115,22 @@ function App() {
         })
         .catch((error) => console.log(error))
       })
+      list
+      .filter(elem => elem[1].type === "Planner")
+      .forEach(elem => {
+        const id = elem[0]
+        const item = obj[id]
+        if (!elem[1].toDo) {
+          let exactLocationOfItemDB = ref(database, `carpeDiem/${id}`)
+          remove(exactLocationOfItemDB)
+        } else {
+          set(ref(database, "carpeDiem/" + id), {
+            ...item,
+            "dueTomorrow" : false
+          })
+        }
+      })
+      const d = new Date()
       setFitDay(weekday[d.getDay()])
     }
     setListSelect("Morning")
@@ -177,6 +193,17 @@ function App() {
     setSelectedItemId(null)
   }
 
+  // delay one-time tasks
+  function planDelay(id) {
+    if (!id) return
+    const item = obj[id]
+    set(ref(database, "carpeDiem/" + id), {
+      ...item,
+      "dueTomorrow" : true,
+    })
+    console.log(item)
+  }
+
   // Sorting
   list.sort((i1, i2) => 
     // Sort timed by next up
@@ -236,11 +263,13 @@ function App() {
     list.filter(elem => Date.now() >= elem[1].lastChecked+elem[1].checkFreq*DAY).length, 
     list.filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date()).length, 
     list.filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].toDo).length, 
-    list.filter(elem => elem[1].toDo && elem[1].priority).length
+    list.filter(elem => elem[1].type === "Planner" && elem[1].toDo && !elem[1].dueTomorrow).length,
+    list.filter(elem => elem[1].toDo && elem[1].priority).length,
   ]
 
   return (
     <>
+      <AddButton addSelect={addSelect} clickHandle={() => setAddSelect(prev => !prev)} />
       {/* Top Bar */}
       <div className='top-group'>
         <div>
@@ -259,9 +288,9 @@ function App() {
               toDo={toDoCounts[idx]}
             />
           )}
-          <button className='button' onClick={() => setAddSelect(prev => !prev)} >
+          {/* <button className='button' onClick={() => setAddSelect(prev => !prev)} >
             <FontAwesomeIcon icon={faPlus} />
-          </button>
+          </button> */}
         </div>
         <button className='button' onClick={resetDay}>
           <FontAwesomeIcon icon={faRefresh} />
@@ -388,6 +417,46 @@ function App() {
                 onHold={selectItem} 
                 selectedItemId={selectedItemId} 
                 icon={elem => sectionIcons[elem[1].defaultList]}
+              />
+            </div>
+          }
+          {sectionSelect === "Planner" &&
+            <div className='inner-content'>                
+              <ListFull 
+                list={list} 
+                type="Planner"
+                filter={elem => elem[1].toDo && !elem[1].dueTomorrow} 
+                handleChange={listCheck} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
+                menuClick={planDelay}
+              />
+              <ListFull 
+                list={list} 
+                type="Planner"
+                filter={elem => !elem[1].toDo && !elem[1].dueTomorrow} 
+                handleChange={listCheck} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
+              />
+              <div style={{color:"white"}}>
+                Tomorrow
+              </div>
+              <ListFull 
+                list={list} 
+                type="Planner"
+                filter={elem => elem[1].toDo && elem[1].dueTomorrow} 
+                handleChange={listCheck} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
+              />
+              <ListFull 
+                list={list} 
+                type="Planner"
+                filter={elem => !elem[1].toDo && elem[1].dueTomorrow} 
+                handleChange={listCheck} 
+                onHold={selectItem} 
+                selectedItemId={selectedItemId} 
               />
             </div>
           }

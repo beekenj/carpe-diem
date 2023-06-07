@@ -9,6 +9,7 @@ import {
     faMoon, 
     faBed,
     faExclamationTriangle,
+    faTimesRectangle,
 } from '@fortawesome/free-solid-svg-icons'
 import DatePicker from 'react-date-picker';
 
@@ -104,6 +105,13 @@ export default function ModItem(props) {
             <button onClick={editName} className='button'><FontAwesomeIcon icon={faPencil} /></button>
             {!props.item.type && 
                 <div>
+                    <button 
+                    onClick={() => console.log("skip")} 
+                    className='button'
+                    style={{color:"#f7958d"}}
+                    >
+                        <FontAwesomeIcon icon={faTimesRectangle} />
+                    </button>
                     {sections.map((elem, idx) => 
                         <button 
                             key={idx}

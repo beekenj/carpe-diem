@@ -7,6 +7,7 @@ import {
     faCreditCard,
     faHeartPulse,
     faTasks,
+    faCalendar,
     // faExclamationTriangle,
 } from '@fortawesome/free-solid-svg-icons'
 
@@ -16,7 +17,7 @@ export default function AddItem(props) {
     const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
 
     const [listNum, setListNum] = useState(0)
-    const [sectionSelect, setSectionSelect] = useState("Tasks")
+    const [sectionSelect, setSectionSelect] = useState("Planner")
     const [name, setName] = useState("")
     const [waterVal, setWaterVal] = useState()
     const [dateVal, setDateVal] = useState(new Date())
@@ -63,6 +64,8 @@ export default function AddItem(props) {
             newEntry = {name:name, dueDate:dateVal.toDateString(), taskFreq:billFreq, type:sectionSelect}
         } else if (sectionSelect === "Fitness") {
             newEntry = {name:name, toDo:true, isCheck:true, whichDays:whichDays, checkType:checkType, type:sectionSelect, count:Number(count), defaultCount:Number(count)}
+        } else if (sectionSelect === "Planner") {
+            newEntry = {name:name, toDo:true, type:sectionSelect}
         }
         props.addClick(newEntry)
     }
@@ -98,6 +101,12 @@ export default function AddItem(props) {
                 >
                     <FontAwesomeIcon icon={faCreditCard} />
                 </button>
+                <button className='button-mid' 
+                    style={{color: sectionSelect === "Planner" ? "#a2f3fc" : "white"}}
+                    onClick={() => setSectionSelect("Planner")}
+                >
+                    <FontAwesomeIcon icon={faCalendar} />
+                </button>
                 <button className='button-right' 
                     style={{color: sectionSelect === "Fitness" ? "#a2f3fc" : "white"}}
                     onClick={() => setSectionSelect("Fitness")}
@@ -106,7 +115,7 @@ export default function AddItem(props) {
                 </button>
             </div>
             {sectionSelect === "Tasks" &&
-                <select className='addSelect' onChange={e => setListNum(e.target.value)}>
+                <select id="addSelect" className='addSelect' onChange={e => setListNum(e.target.value)}>
                     {sections.map((section, idx) => 
                         <option key={idx} value={idx}>{section}</option>)}
                 </select>
