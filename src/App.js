@@ -300,7 +300,7 @@ function App() {
       <div style={{height:"25px"}} />
       {addSelect ? 
         <div className='inner-content'>
-          <AddItem addClick={addClick} />
+          <AddItem addClick={addClick} sectionSelect={sectionSelect} />
         </div> :
         <>
           {sectionSelect === "Tasks" && 

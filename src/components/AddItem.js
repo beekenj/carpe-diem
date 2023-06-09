@@ -17,7 +17,7 @@ export default function AddItem(props) {
     const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
 
     const [listNum, setListNum] = useState(0)
-    const [sectionSelect, setSectionSelect] = useState("Planner")
+    const [sectionSelect, setSectionSelect] = useState(props.sectionSelect)
     const [name, setName] = useState("")
     const [waterVal, setWaterVal] = useState()
     const [dateVal, setDateVal] = useState(new Date())
