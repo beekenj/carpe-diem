@@ -23,13 +23,7 @@ export default function AddItem(props) {
     const [dateVal, setDateVal] = useState(new Date())
     const [billFreq, setBillFreq] = useState("monthly")
     const [whichDays, setWhichDays] = useState({
-        Su:false,
-        M:false, 
-        Tu:false,
-        W:false,
-        Th:false,
-        F:false,
-        Sa:false,
+        Su:false, M:false, Tu:false, W:false, Th:false, F:false, Sa:false,
     })
     const [checkType, setCheckType] = useState("checked")
     const [count, setCount] = useState(5)
@@ -102,16 +96,16 @@ export default function AddItem(props) {
                     <FontAwesomeIcon icon={faCreditCard} />
                 </button>
                 <button className='button-mid' 
-                    style={{color: sectionSelect === "Planner" ? "#a2f3fc" : "white"}}
-                    onClick={() => setSectionSelect("Planner")}
-                >
-                    <FontAwesomeIcon icon={faCalendar} />
-                </button>
-                <button className='button-right' 
                     style={{color: sectionSelect === "Fitness" ? "#a2f3fc" : "white"}}
                     onClick={() => setSectionSelect("Fitness")}
                 >
                     <FontAwesomeIcon icon={faHeartPulse} />
+                </button>
+                <button className='button-right' 
+                    style={{color: sectionSelect === "Planner" ? "#a2f3fc" : "white"}}
+                    onClick={() => setSectionSelect("Planner")}
+                >
+                    <FontAwesomeIcon icon={faCalendar} />
                 </button>
             </div>
             {sectionSelect === "Tasks" &&
