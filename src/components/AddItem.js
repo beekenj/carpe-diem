@@ -209,6 +209,35 @@ export default function AddItem(props) {
                     </fieldset>
                 </>
             }
+            {sectionSelect === "Planner" && 
+                <fieldset className='check-type'>
+                    <legend>Due When?</legend>
+                    
+                    <div>
+                        <input 
+                            type="radio"
+                            id="today"
+                            value="today"
+                            name="dueDay"
+                            // onChange={() => setCheckType("checked")}
+                            // checked={checkType === "checked"}
+                        />
+                        <label htmlFor="today">Today</label>
+                    </div>
+                    
+                    <div>
+                        <input 
+                            type="radio"
+                            id="tomorrow"
+                            value="tomorrow"
+                            name="dueDay"
+                            // onChange={() => setCheckType("count")}
+                            // checked={checkType === "count"}
+                        />
+                        <label htmlFor="tomorrow">Tomorrow</label>
+                    </div>
+                </fieldset>
+            }
             <button 
                 className="add-button" 
                 // listNum={listNum}
