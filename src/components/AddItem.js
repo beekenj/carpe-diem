@@ -84,6 +84,12 @@ export default function AddItem(props) {
                     <FontAwesomeIcon icon={faTasks} />
                 </button>
                 <button className='button-mid' 
+                    style={{color: sectionSelect === "Fitness" ? "#a2f3fc" : "white"}}
+                    onClick={() => setSectionSelect("Fitness")}
+                >
+                    <FontAwesomeIcon icon={faHeartPulse} />
+                </button>
+                <button className='button-mid' 
                     style={{color: sectionSelect === "Plants" ? "#a2f3fc" : "white"}}
                     onClick={() => setSectionSelect("Plants")}
                 >
@@ -94,12 +100,6 @@ export default function AddItem(props) {
                     onClick={() => setSectionSelect("Bills")}
                 >
                     <FontAwesomeIcon icon={faCreditCard} />
-                </button>
-                <button className='button-mid' 
-                    style={{color: sectionSelect === "Fitness" ? "#a2f3fc" : "white"}}
-                    onClick={() => setSectionSelect("Fitness")}
-                >
-                    <FontAwesomeIcon icon={faHeartPulse} />
                 </button>
                 <button className='button-right' 
                     style={{color: sectionSelect === "Planner" ? "#a2f3fc" : "white"}}

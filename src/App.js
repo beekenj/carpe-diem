@@ -44,7 +44,7 @@ function App() {
   const DAY = 86400000
   const d = new Date()
   const sections = ["Morning", "Afternoon", "Evening", "Night"]
-  const addSections = ["Plants", "Bills", "Fitness", "Planner", "Priority"]
+  const addSections = ["Fitness", "Plants", "Bills", "Planner", "Priority"]
   const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
   const sectionIcons = [faCoffee, faSun, faMoon, faBed]
   
@@ -260,9 +260,9 @@ function App() {
 
   // Calculate list lengths for notifications
   const toDoCounts = [
+    list.filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].toDo).length, 
     list.filter(elem => Date.now() >= elem[1].lastChecked+elem[1].checkFreq*DAY).length, 
     list.filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date()).length, 
-    list.filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].toDo).length, 
     list.filter(elem => elem[1].type === "Planner" && elem[1].toDo && !elem[1].dueTomorrow).length,
     list.filter(elem => elem[1].toDo && elem[1].priority).length,
   ]
