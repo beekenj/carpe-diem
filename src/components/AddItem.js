@@ -27,7 +27,8 @@ export default function AddItem(props) {
     })
     const [checkType, setCheckType] = useState("checked")
     const [count, setCount] = useState(5)
-    // console.log(checkType)
+    const [isDueTomorrow, setIsDueTomorrow] = useState(false)
+    // console.log(isDueTomorrow)
 
     function dayChange(event) {
         const key = event.target.id
@@ -59,7 +60,7 @@ export default function AddItem(props) {
         } else if (sectionSelect === "Fitness") {
             newEntry = {name:name, toDo:true, isCheck:true, whichDays:whichDays, checkType:checkType, type:sectionSelect, count:Number(count), defaultCount:Number(count)}
         } else if (sectionSelect === "Planner") {
-            newEntry = {name:name, toDo:true, type:sectionSelect}
+            newEntry = {name:name, toDo:true, type:sectionSelect, dueTomorrow:isDueTomorrow}
         }
         props.addClick(newEntry)
     }
@@ -219,8 +220,8 @@ export default function AddItem(props) {
                             id="today"
                             value="today"
                             name="dueDay"
-                            // onChange={() => setCheckType("checked")}
-                            // checked={checkType === "checked"}
+                            onChange={() => setIsDueTomorrow(false)}
+                            checked={!isDueTomorrow}
                         />
                         <label htmlFor="today">Today</label>
                     </div>
@@ -231,8 +232,8 @@ export default function AddItem(props) {
                             id="tomorrow"
                             value="tomorrow"
                             name="dueDay"
-                            // onChange={() => setCheckType("count")}
-                            // checked={checkType === "count"}
+                            onChange={() => setIsDueTomorrow(true)}
+                            checked={isDueTomorrow}
                         />
                         <label htmlFor="tomorrow">Tomorrow</label>
                     </div>
