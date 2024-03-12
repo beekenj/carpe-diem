@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/carpe-diem/static/css/main.21182bfc.css",
-    "main.js": "/carpe-diem/static/js/main.c36f0336.js",
+    "main.js": "/carpe-diem/static/js/main.b5e759e2.js",
     "static/js/787.be9b0168.chunk.js": "/carpe-diem/static/js/787.be9b0168.chunk.js",
     "index.html": "/carpe-diem/index.html",
     "main.21182bfc.css.map": "/carpe-diem/static/css/main.21182bfc.css.map",
-    "main.c36f0336.js.map": "/carpe-diem/static/js/main.c36f0336.js.map",
+    "main.b5e759e2.js.map": "/carpe-diem/static/js/main.b5e759e2.js.map",
     "787.be9b0168.chunk.js.map": "/carpe-diem/static/js/787.be9b0168.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.21182bfc.css",
-    "static/js/main.c36f0336.js"
+    "static/js/main.b5e759e2.js"
   ]
 }
