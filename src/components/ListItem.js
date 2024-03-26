@@ -118,7 +118,7 @@ export default function ListItem(props) {
             }
             {props.item.type === "Plants" &&
                 <div className="item-days-left">
-                    {(checkFreq)-((d.setHours(0,0,0,0)-lastChecked)/DAY)}
+                    {Math.round((checkFreq)-((d.setHours(0,0,0,0)-lastChecked)/DAY))}
                 </div>
             }
             {props.item.type === "Fitness" &&
