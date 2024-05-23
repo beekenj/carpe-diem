@@ -66,8 +66,9 @@ export default function ListItem(props) {
                 borderColor: 
                 props.item.type !== "Plants" &&
                 props.item.type !== "Bills" &&
-                props.item.type !== "Planner" &&
-                    !props.donePreviously && "#9e5157",
+                props.item.type !== "Planner",
+                // props.item.type !== "Planner" &&
+                    // !props.donePreviously && "#9e5157",
                 background: props.selected && "#6d9478",
                 color:  (dueDate-DAY > now && "gray") ||
                         (dueDate < now-DAY && "red")  ||
