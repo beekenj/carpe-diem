@@ -6,6 +6,7 @@ import ListItem from './components/ListItem';
 import ListFull from './components/ListFull';
 import ModItem from './components/ModItem';
 import AddButton from './components/AddButton';
+import BottomBar from './components/BottomBar';
 
 import { useEffect, useState } from 'react';
 
@@ -46,12 +47,14 @@ function App() {
   const sections = ["Morning", "Afternoon", "Evening", "Night"]
   const addSections = ["Fitness", "Plants", "Bills", "Planner", "Priority"]
   const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
+  const sectionTasks = ["Today", "Ongoing"]
   const sectionIcons = [faCoffee, faSun, faMoon, faBed]
   
   // state
   const [list, setList] = useState([])
   const [obj, setObj] = useState({})
   const [listSelect, setListSelect] = useState(localStorage.getItem("listSelect") || "Morning")
+  const [listSelectTasks, setListSelectTasks] = useState("Today")
   const [sectionSelect, setSectionSelect] = useState(localStorage.getItem("sectionSelect") || "Tasks")
   const [addSelect, setAddSelect] = useState(false)
   const [fitDay, setFitDay] = useState(weekday[d.getDay()])
@@ -84,7 +87,11 @@ function App() {
       ...item,
       "toDo" : checked ? false : true, 
     })
-    .catch((error) => console.log(error))
+    .catch((error) => handleLog(error))
+  }
+
+  function handleLog(message) {
+    console.log(message)
   }
 
   function countClick(id) {
@@ -95,7 +102,7 @@ function App() {
       "count" : item.count > 0 ? item.count-1 : 0,
       "toDo" : item.count <= 1 ? false : true,
     })
-    .catch((error) => console.log(error))
+    .catch((error) => handleLog(error))
   }
 
   function resetDay() {
@@ -113,10 +120,10 @@ function App() {
           "list" : !item.type && item.defaultList,
           "count" : item.checkType === "count" && item.defaultCount
         })
-        .catch((error) => console.log(error))
+        .catch((error) => handleLog(error))
       })
       list
-      .filter(elem => elem[1].type === "Planner")
+      .filter(elem => (elem[1].type === "Planner" || elem[1].type === "Ongoing"))
       .forEach(elem => {
         const id = elem[0]
         const item = obj[id]
@@ -132,6 +139,7 @@ function App() {
       })
       const d = new Date()
       setFitDay(weekday[d.getDay()])
+      setSelectedItemId(null)
     }
     setListSelect("Morning")
     setSectionSelect("Tasks")
@@ -143,7 +151,7 @@ function App() {
       ...item,
       "list" : item.list < 3 ? item.list+1 : item.list,
     })
-    .catch((error) => console.log(error))
+    .catch((error) => handleLog(error))
   }
 
   function timedCheck(_, id) {
@@ -153,7 +161,7 @@ function App() {
       ...item,
       "lastChecked" : d.setHours(0,0,0,0),
     })
-    .catch((error) => console.log(error))
+    .catch((error) => handleLog(error))
   }
 
   function billCheck(_, id) {
@@ -169,7 +177,7 @@ function App() {
       ...item,
       "dueDate" : newDate,
     })
-    .catch((error) => console.log(error))
+    .catch((error) => handleLog(error))
   }
 
   function selectItem(id) {
@@ -201,7 +209,6 @@ function App() {
       ...item,
       "dueTomorrow" : true,
     })
-    console.log(item)
   }
 
   // Sorting
@@ -216,14 +223,9 @@ function App() {
     ? -1 : 0
   )
 
-  // console.log(new Date("Mon Jun 05 2023") - new Date("Mon May 15 2023"))
-  // console.log(list.filter(item => item[1].type === "Bills").filter(item => item[1].dueDate))
-
   list
     // .filter(item => item[1].type === "Bills")
     .sort((i1,i2) => {
-      // console.log(i1[1].name, i2[1].name)
-      // console.log(new Date(i1[1].dueDate) - new Date(i2[1].dueDate))
       return new Date(i1[1].dueDate) - new Date(i2[1].dueDate)})
 
   // Setup DOM content
@@ -265,7 +267,13 @@ function App() {
     list.filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date()).length, 
     list.filter(elem => elem[1].type === "Planner" && elem[1].toDo && !elem[1].dueTomorrow).length,
     list.filter(elem => elem[1].toDo && elem[1].priority).length,
+    list.filter(elem => elem[1].toDo && elem[1].list === 0).length,
+    list.filter(elem => elem[1].toDo && elem[1].list === 1).length,
+    list.filter(elem => elem[1].toDo && elem[1].list === 2).length,
+    list.filter(elem => elem[1].toDo && elem[1].list === 3).length,
   ]
+  // console.log(list)
+  // console.log(toDoCounts.slice(5))
 
   return (
     <>
@@ -288,9 +296,6 @@ function App() {
               toDo={toDoCounts[idx]}
             />
           )}
-          {/* <button className='button' onClick={() => setAddSelect(prev => !prev)} >
-            <FontAwesomeIcon icon={faPlus} />
-          </button> */}
         </div>
         <button className='button' onClick={resetDay}>
           <FontAwesomeIcon icon={faRefresh} />
@@ -312,16 +317,12 @@ function App() {
                 <div style={{height:"35px"}} />
               </div>
               {/* Bottom bar for Tasks */}
-              <div className="btn-group">
-                {sections.map((section, idx) => 
-                  <NavButton 
-                    key={idx} 
-                    section={section} 
-                    handleClick={setListSelect} 
-                    sectionSelect={listSelect}
-                  />
-                  )}
-              </div>
+              <BottomBar 
+                sections={sections}
+                setListSelect={setListSelect}
+                listSelect={listSelect}
+                toDoCounts={toDoCounts.slice(5)}
+              />
             </div>
           }
           {sectionSelect === "Plants" && 
@@ -338,7 +339,7 @@ function App() {
                 list={list} 
                 type="Plants" 
                 filter={elem => Date.now() < elem[1].lastChecked+(elem[1].checkFreq*DAY)} 
-                handleChange={() => console.log("undo?")} 
+                handleChange={() => handleLog("undo?")} 
                 onHold={selectItem} 
                 selectedItemId={selectedItemId} 
               />
@@ -358,7 +359,7 @@ function App() {
                 list={list} 
                 type="Bills" 
                 filter={elem => new Date(elem[1].dueDate)-(DAY*4) > new Date()} 
-                handleChange={() => console.log("undo?")} 
+                handleChange={() => handleLog("undo?")} 
                 onHold={selectItem} 
                 selectedItemId={selectedItemId} 
               />
@@ -421,42 +422,73 @@ function App() {
             </div>
           }
           {sectionSelect === "Planner" &&
-            <div className='inner-content'>                
-              <ListFull 
-                list={list} 
-                type="Planner"
-                filter={elem => elem[1].toDo && !elem[1].dueTomorrow} 
-                handleChange={listCheck} 
-                onHold={selectItem} 
-                selectedItemId={selectedItemId} 
-                menuClick={planDelay}
-              />
-              <ListFull 
-                list={list} 
-                type="Planner"
-                filter={elem => !elem[1].toDo && !elem[1].dueTomorrow} 
-                handleChange={listCheck} 
-                onHold={selectItem} 
-                selectedItemId={selectedItemId} 
-              />
-              <div style={{color:"white"}}>
-                Tomorrow
+            <div>
+              {listSelectTasks === "Today" && 
+              <div className='inner-content'>                
+                <ListFull 
+                  list={list} 
+                  type="Planner"
+                  filter={elem => elem[1].toDo && !elem[1].dueTomorrow} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                  menuClick={planDelay}
+                />
+                <ListFull 
+                  list={list} 
+                  type="Planner"
+                  filter={elem => !elem[1].toDo && !elem[1].dueTomorrow} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
+                <div style={{color:"white"}}>
+                  Tomorrow
+                </div>
+                <ListFull 
+                  list={list} 
+                  type="Planner"
+                  filter={elem => elem[1].toDo && elem[1].dueTomorrow} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
+                <ListFull 
+                  list={list} 
+                  type="Planner"
+                  filter={elem => !elem[1].toDo && elem[1].dueTomorrow} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
               </div>
-              <ListFull 
-                list={list} 
-                type="Planner"
-                filter={elem => elem[1].toDo && elem[1].dueTomorrow} 
-                handleChange={listCheck} 
-                onHold={selectItem} 
-                selectedItemId={selectedItemId} 
-              />
-              <ListFull 
-                list={list} 
-                type="Planner"
-                filter={elem => !elem[1].toDo && elem[1].dueTomorrow} 
-                handleChange={listCheck} 
-                onHold={selectItem} 
-                selectedItemId={selectedItemId} 
+              }
+              {listSelectTasks === "Ongoing" && 
+              <div className='inner-content'>
+                <ListFull 
+                  list={list} 
+                  type="Ongoing"
+                  filter={elem => elem[1].toDo} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
+                <ListFull 
+                  list={list} 
+                  type="Ongoing"
+                  filter={elem => !elem[1].toDo} 
+                  handleChange={listCheck} 
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
+              </div>
+              }
+              {/* Bottom bar for Today/Ongoing tasks */}
+              <BottomBar 
+                sections={sectionTasks}
+                setListSelect={setListSelectTasks}
+                listSelect={listSelectTasks}
+                toDoCounts={toDoCounts.slice(5)}
               />
             </div>
           }

@@ -46,18 +46,16 @@ export default function ListItem(props) {
         }
     }
 
-    // console.log(counter)
-
     const checked = (
         (!props.item.type 
         || props.item.type === "Fitness"
         || props.item.type === "Planner"
+        || props.item.type === "Ongoing"
         ) ? !toDo :
         props.item.type === "Bills" ? dueDate-(DAY*4) > now :
         props.item.type === "Plants" ? now <= lastChecked+(checkFreq*DAY) : 
         false
     )
-    // console.log(dueDate, dueDate+DAY < new Date(now))
     
     return (
         <div 
@@ -66,7 +64,8 @@ export default function ListItem(props) {
                 borderColor: 
                 props.item.type !== "Plants" &&
                 props.item.type !== "Bills" &&
-                props.item.type !== "Planner",
+                props.item.type !== "Planner" &&
+                props.item.type !== "Ongoing",
                 // props.item.type !== "Planner" &&
                     // !props.donePreviously && "#9e5157",
                 background: props.selected && "#6d9478",
@@ -127,7 +126,7 @@ export default function ListItem(props) {
                     {props.item.count}
                 </div>
             }
-            {props.item.type === "Planner" && 
+            {(props.item.type === "Planner" || props.item.type === "Ongoing") && 
                 <div className="iconArea" onClick={() => props.menuClick && props.menuClick(props.id)}>
                     {!props.item.dueTomorrow && props.menuClick && <FontAwesomeIcon icon={faChevronCircleRight} />}
                 </div>

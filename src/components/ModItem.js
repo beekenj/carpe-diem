@@ -10,17 +10,22 @@ import {
     faBed,
     faExclamationTriangle,
     faTimesRectangle,
+    faCalendarCheck,
+    faCalendarPlus,
 } from '@fortawesome/free-solid-svg-icons'
 import DatePicker from 'react-date-picker';
 
 export default function ModItem(props) {
     const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
     const sections = ["Morning", "Afternoon", "Evening", "Night"]
+    const sectionTasks = ["Planner", "Ongoing"]
     const iconObj = {
         "Morning":faCoffee,
         "Afternoon":faSun,
         "Evening":faMoon,
         "Night":faBed,
+        "Planner":faCalendarCheck,
+        "Ongoing":faCalendarPlus,
     }
 
     const [waterFreq, setWaterFreq] = useState(props.item.checkFreq)
@@ -100,6 +105,14 @@ export default function ModItem(props) {
         props.editItem(props.id, newObj)
     }
 
+    function changeType(type) {
+        const newObj = {
+            ...props.item,
+            "type" : type
+        }
+        props.editItem(props.id, newObj)
+    }
+
     return (
         <div className='mod-group'>
             <button onClick={editName} className='button'><FontAwesomeIcon icon={faPencil} /></button>
@@ -154,6 +167,21 @@ export default function ModItem(props) {
                     </div>
                     <button onClick={changeFit} className='select'>Ok</button>
                 </>
+            }
+            {
+                (props.item.type === "Planner" || props.item.type === "Ongoing") && 
+                <div>
+                    {sectionTasks.map((elem, idx) => 
+                        <button 
+                            key={idx}
+                            onClick={() => changeType(elem)} 
+                            style={{color: props.item.defaultList === idx && '#a2f3fc'}} 
+                            className='select'
+                        >
+                            <FontAwesomeIcon icon={iconObj[elem]} />
+                        </button>
+                    )}
+                </div>
             }
             <button onClick={() => props.removeItem(props.id)} className='button'><FontAwesomeIcon icon={faTrash} /></button>
         </div>

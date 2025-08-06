@@ -14,6 +14,8 @@ import {
     faTasks,
     faExclamationTriangle,
     faCalendar,
+    faCalendarCheck,
+    faCalendarPlus,
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function NavButton(props) {
@@ -29,13 +31,19 @@ export default function NavButton(props) {
         "Tasks":faTasks,
         "Priority":faExclamationTriangle,
         "Planner":faCalendar,
+        "Today":faCalendarCheck,
+        "Ongoing":faCalendarPlus,
+    }
+    const style={
+        color:props.section === props.sectionSelect ? '#a2f3fc' : 
+            props.toDo === 0 ? '#ababab' : 'white'
     }
     return (
         <>
             <button
                 className="button"
                 onClick={() => props.handleClick(props.section)}
-                style={{color:props.section === props.sectionSelect ? '#a2f3fc' : 'white'}}
+                style={style}
                 >
                 {props.toDo > 0 && <div className='notification'>{props.toDo}</div>}
                 <FontAwesomeIcon icon={iconObj[props.section]} />

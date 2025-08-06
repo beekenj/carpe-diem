@@ -12,14 +12,6 @@ html, body {
   margin: 30px auto;
 }
 
-
-.btn-group {
-  position: fixed;
-  bottom: 0px;
-  width: 100%;
-  height: 55px;
-}
-
 .top-group {
   position: fixed;
   display: flex;
