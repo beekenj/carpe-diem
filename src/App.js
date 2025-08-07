@@ -185,6 +185,7 @@ function App() {
   }
 
   function editItem(id, newObj) {
+    // console.log("edit", id, newObj)
     if (!id || !newObj) return
     set(ref(database, "carpeDiem/" + id), newObj)
     setSelectedItemId(null)

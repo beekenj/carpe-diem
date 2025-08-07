@@ -12,6 +12,8 @@ import {
     faTimesRectangle,
     faCalendarCheck,
     faCalendarPlus,
+    faCircleUp, 
+    faCircleDown, 
 } from '@fortawesome/free-solid-svg-icons'
 import DatePicker from 'react-date-picker';
 
@@ -54,10 +56,20 @@ export default function ModItem(props) {
         props.editItem(props.id, newObj)
     }
 
+    
     function editFreq() {
         const newObj = {
             ...props.item,
             "checkFreq" : Number(waterFreq),
+        }
+        props.editItem(props.id, newObj)
+    }
+
+    function incFreq(increment) {
+        const newFreq = increment ? waterFreq + 1 : waterFreq - 1
+        const newObj = {
+            ...props.item,
+            "checkFreq" : Number(newFreq),
         }
         props.editItem(props.id, newObj)
     }
@@ -140,7 +152,9 @@ export default function ModItem(props) {
             }
             {props.item.type === "Plants" &&
                 <div>
+                    <button onClick={() => incFreq(true)} className='button'><FontAwesomeIcon icon={faCircleUp} /></button>
                     <input className='water-input' type='number' value={waterFreq} onChange={e => setWaterFreq(e.target.value)} />
+                    <button onClick={() => incFreq(false)} className='button'><FontAwesomeIcon icon={faCircleDown} /></button>
                     <button onClick={editFreq} className='button'>Ok</button>
                 </div>
             }

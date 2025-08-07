@@ -36,7 +36,7 @@ export default function NavButton(props) {
     }
     const style={
         color:props.section === props.sectionSelect ? '#a2f3fc' : 
-            props.toDo === 0 ? '#ababab' : 'white'
+            props.toDo === 0 ? '#ababab6d' : 'white'
     }
     return (
         <>
