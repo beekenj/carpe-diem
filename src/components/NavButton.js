@@ -2,7 +2,7 @@ import './NavButton.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
     // faHourglassStart, 
-    // faHourglassEnd, 
+    faHourglassEnd, 
     faCoffee, 
     faSun,
     faMoon, 
@@ -33,6 +33,7 @@ export default function NavButton(props) {
         "Planner":faCalendar,
         "Today":faCalendarCheck,
         "Ongoing":faCalendarPlus,
+        "Chores":faHourglassEnd,
     }
     const style={
         color:props.section === props.sectionSelect ? '#a2f3fc' : 

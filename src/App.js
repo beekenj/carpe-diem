@@ -47,7 +47,7 @@ function App() {
   const sections = ["Morning", "Afternoon", "Evening", "Night"]
   const addSections = ["Fitness", "Plants", "Bills", "Planner", "Priority"]
   const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
-  const sectionTasks = ["Today", "Ongoing"]
+  const sectionTasks = ["Today", "Chores", "Ongoing"]
   const sectionIcons = [faCoffee, faSun, faMoon, faBed]
   
   // state
@@ -274,7 +274,7 @@ function App() {
     list.filter(elem => elem[1].toDo && elem[1].list === 3).length,
   ]
   // console.log(list)
-  // console.log(toDoCounts.slice(5))
+  // console.log(listSelectTasks)
 
   return (
     <>
@@ -463,6 +463,19 @@ function App() {
                   selectedItemId={selectedItemId} 
                 />
               </div>
+              }
+              {listSelectTasks === "Chores" && 
+                <div className='inner-content'>
+                  <>chores</>
+                  <ListFull 
+                    list={list} 
+                    type="Plants" 
+                    filter={elem => Date.now() < elem[1].lastChecked+(elem[1].checkFreq*DAY)} 
+                    handleChange={() => handleLog("undo?")} 
+                    onHold={selectItem} 
+                    selectedItemId={selectedItemId} 
+                  />
+                </div>
               }
               {listSelectTasks === "Ongoing" && 
               <div className='inner-content'>
