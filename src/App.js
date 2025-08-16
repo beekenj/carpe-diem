@@ -18,7 +18,7 @@ import {
   onValue, 
   push, 
   set, 
-  remove, 
+  remove,
   // update, 
 } from "firebase/database"
 
@@ -97,12 +97,21 @@ function App() {
   function countClick(id) {
     const item = obj[id]
     if (!id) return
-    set(ref(database, "carpeDiem/" + id), {
-      ...item,
-      "count" : item.count > 0 ? item.count-1 : 0,
-      "toDo" : item.count <= 1 ? false : true,
-    })
-    .catch((error) => handleLog(error))
+    if (item.count === 0) {
+      set(ref(database, "carpeDiem/" + id), {
+        ...item,
+        "count" : item.count > 0 ? item.count-1 : item.defaultCount,
+        "toDo" : true,
+      })
+      .catch((error) => handleLog(error))
+  } else {
+      set(ref(database, "carpeDiem/" + id), {
+        ...item,
+        "count" : item.count > 0 ? item.count-1 : 0,
+        "toDo" : item.count <= 1 ? false : true,
+      })
+      .catch((error) => handleLog(error))
+    }
   }
 
   function resetDay() {
