@@ -22,9 +22,9 @@ import {
   // update, 
 } from "firebase/database"
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
-    faRefresh,
+    // faRefresh,
     faCoffee, 
     faSun,
     faMoon, 
@@ -45,7 +45,7 @@ function App() {
   const DAY = 86400000
   const d = new Date()
   const sections = ["Morning", "Afternoon", "Evening", "Night"]
-  const addSections = ["Fitness", "Plants", "Bills", "Planner", "Priority"]
+  const addSections = ["Fitness", "Planner", "Plants", "Bills", "Planner", "Priority"]
   const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
   const sectionTasks = ["Today", "Chores", "Ongoing"]
   const sectionIcons = [faCoffee, faSun, faMoon, faBed]
@@ -130,6 +130,10 @@ function App() {
           "count" : item.checkType === "count" && item.defaultCount
         })
         .catch((error) => handleLog(error))
+
+        // reset section and task list
+        setListSelect("Morning")
+        setSectionSelect("Tasks")
       })
       list
       .filter(elem => (elem[1].type === "Planner" || elem[1].type === "Ongoing"))
@@ -150,8 +154,6 @@ function App() {
       setFitDay(weekday[d.getDay()])
       setSelectedItemId(null)
     }
-    setListSelect("Morning")
-    setSectionSelect("Tasks")
   }
 
   function delayItem(id) {
@@ -270,9 +272,22 @@ function App() {
         />)
   )
 
+  
   // Calculate list lengths for notifications
+
+  const fitCountCount =  () => {
+    if (list.filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].count).map(elem => elem[1].count).length > 0) {
+      return list.filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].count).map(elem => elem[1].count).reduce((acc, elem) => acc + elem)
+    } else {
+      return 0
+    }
+  }
+
+  const fitCheckCount = list.filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].toDo && elem[1].count === false).length
+  
   const toDoCounts = [
-    list.filter(elem => elem[1].type === "Fitness" && elem[1].whichDays[weekday[d.getDay()]] && elem[1].toDo).length, 
+    fitCheckCount + fitCountCount(), 
+    0,
     list.filter(elem => Date.now() >= elem[1].lastChecked+elem[1].checkFreq*DAY).length, 
     list.filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date()).length, 
     list.filter(elem => elem[1].type === "Planner" && elem[1].toDo && !elem[1].dueTomorrow).length,
@@ -282,15 +297,14 @@ function App() {
     list.filter(elem => elem[1].toDo && elem[1].list === 2).length,
     list.filter(elem => elem[1].toDo && elem[1].list === 3).length,
   ]
-  // console.log(list)
-  // console.log(listSelectTasks)
+  // console.log(toDoCounts.slice(6))
 
   return (
     <>
       <AddButton addSelect={addSelect} clickHandle={() => setAddSelect(prev => !prev)} />
       {/* Top Bar */}
-      <div className='top-group'>
-        <div>
+      <div className='top-under'>
+        <div className='top-group'>
           <NavButton 
             section="Tasks" 
             handleClick={setSectionSelect} 
@@ -307,9 +321,9 @@ function App() {
             />
           )}
         </div>
-        <button className='button' onClick={resetDay}>
+        {/* <button className='button' onClick={resetDay}>
           <FontAwesomeIcon icon={faRefresh} />
-        </button>
+        </button> */}
       </div>
       {/* Content area */}
       <div style={{height:"25px"}} />
@@ -331,7 +345,8 @@ function App() {
                 sections={sections}
                 setListSelect={setListSelect}
                 listSelect={listSelect}
-                toDoCounts={toDoCounts.slice(5)}
+                toDoCounts={toDoCounts.slice(6)}
+                resetDay={resetDay}
               />
             </div>
           }
@@ -512,6 +527,7 @@ function App() {
                 setListSelect={setListSelectTasks}
                 listSelect={listSelectTasks}
                 toDoCounts={toDoCounts.slice(5)}
+                // refresh={resetDay}
               />
             </div>
           }

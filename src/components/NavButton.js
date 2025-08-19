@@ -16,6 +16,7 @@ import {
     faCalendar,
     faCalendarCheck,
     faCalendarPlus,
+    faRefresh
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function NavButton(props) {
@@ -34,6 +35,7 @@ export default function NavButton(props) {
         "Today":faCalendarCheck,
         "Ongoing":faCalendarPlus,
         "Chores":faHourglassEnd,
+        "Refresh":faRefresh,
     }
     const style={
         color:props.section === props.sectionSelect ? '#a2f3fc' : 

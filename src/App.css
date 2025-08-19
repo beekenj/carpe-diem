@@ -18,12 +18,23 @@ html, body {
   justify-content: space-between;
   /* align-items: center; */
   color: rgb(179, 255, 160);
+  /* margin-right: 10px; */
+  top: 0px;
+  width: 98%;
+  background-color: #000000; /* Black */
+  height: 47px;
+  z-index: 10;
+  /* overflow: hidden; */
+}
+
+.top-under {
+  position: fixed;
+  color: rgb(179, 255, 160);
   top: 0px;
   width: 100%;
   background-color: #000000; /* Black */
   height: 47px;
   z-index: 10;
-  /* overflow: hidden; */
 }
 
 .days-bottom {
