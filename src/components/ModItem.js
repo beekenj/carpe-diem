@@ -34,18 +34,12 @@ export default function ModItem(props) {
     const [priority, setPriority] = useState(props.item.priority)
     const [dateVal, setDateVal] = useState(new Date(props.item.dueDate))
     const [whichDays, setWhichDays] = useState(props.item.whichDays)
+    const [chorePriority, setChorePriority] = useState(props.item.chorePriority)
 
     useEffect(() => {
         setPriority(props.item.priority)
         setWhichDays(props.item.whichDays)
     }, [props.item])
-    // useEffect(() => {
-    //     const newObj = {
-    //         ...props.item,
-    //         "dueDate" : dateVal
-    //     }
-    //     props.editItem(props.id, newObj)
-    // }, [dateVal])
 
     function editName() {
         const newName = prompt("Name:", props.item.name) || props.item.name
@@ -125,6 +119,15 @@ export default function ModItem(props) {
         props.editItem(props.id, newObj)
     }
 
+    function changeChorePriority(num) {
+        setChorePriority(num)
+        const newObj = {
+            ...props.item,
+            "chorePriority" : num
+        }
+        props.editItem(props.id, newObj)
+    }
+
     return (
         <div className='mod-group'>
             <button onClick={editName} className='button'><FontAwesomeIcon icon={faPencil} /></button>
@@ -196,6 +199,73 @@ export default function ModItem(props) {
                         </button>
                     )}
                 </div>
+            }
+            {props.item.type === 'Chores' &&
+                <>
+                    <fieldset className='check-type'>
+                        <legend>Priority</legend>
+                        
+                        <div>
+                            <input 
+                                type='radio'
+                                id='priorityOne'
+                                value='checked'
+                                name='chorePriority'
+                                onChange={() => changeChorePriority(1)}
+                                checked={chorePriority === 1}
+                            />
+                            <label htmlFor='checked'>1</label>
+                        </div>
+                        
+                        <div>
+                            <input 
+                                type='radio'
+                                id='priorityTwo'
+                                value='count'
+                                name='chorePriority'
+                                onChange={() => changeChorePriority(2)}
+                                checked={chorePriority === 2}
+                            />
+                            <label htmlFor='count'>2</label>
+                        </div>
+
+                        <div>
+                            <input 
+                                type='radio'
+                                id='priorityThree'
+                                value='count'
+                                name='chorePriority'
+                                onChange={() => changeChorePriority(3)}
+                                checked={chorePriority === 3}
+                            />
+                            <label htmlFor='count'>3</label>
+                        </div>
+                        
+                        <div>
+                            <input 
+                                type='radio'
+                                id='priorityFour'
+                                value='count'
+                                name='chorePriority'
+                                onChange={() => changeChorePriority(4)}
+                                checked={chorePriority === 4}
+                            />
+                            <label htmlFor='count'>4</label>
+                        </div>
+                        <div>
+                            <input 
+                                type='radio'
+                                id='priorityFive'
+                                value='count'
+                                name='chorePriority'
+                                onChange={() => changeChorePriority(5)}
+                                checked={chorePriority === 5}
+                            />
+                            <label htmlFor='count'>5</label>
+                        </div>
+
+                    </fieldset>
+                </>
             }
             <button onClick={() => props.removeItem(props.id)} className='button'><FontAwesomeIcon icon={faTrash} /></button>
         </div>

@@ -1,7 +1,7 @@
 import "./BottomBar.css"
 import NavButton from "./NavButton"
 
-export default function BottomBar({sections, setListSelect, listSelect, toDoCounts, resetDay}) {
+export default function BottomBar({sections, setListSelect, listSelect, toDoCounts, resetDay, taskCount}) {
     // console.log(toDoCounts)
     return (
         <div className="btn-group">
@@ -17,6 +17,8 @@ export default function BottomBar({sections, setListSelect, listSelect, toDoCoun
             {resetDay && <NavButton 
                 section={"Refresh"} 
                 handleClick={resetDay}
+                color={taskCount > 0 ? '#1e1f26' : 'white'}
+                // toDo={0}
             />}
         </div>
     )

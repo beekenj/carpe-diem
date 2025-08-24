@@ -12,6 +12,7 @@ import { useEffect, useState } from 'react';
 
 // Database functions
 import { initializeApp } from "firebase/app";
+// import { getFirestore, collection, getDocs } from 'firebase/firestore/lite';
 import { 
   getDatabase, 
   ref, 
@@ -40,14 +41,25 @@ const app = initializeApp(firebaseConfig);
 const database = getDatabase(app)
 const listInDB = ref(database, "carpeDiem")
 
+// const db = getFirestore(app)
+
+// async function getData(db) {
+//   const col = collection(db, "carpeDiem")
+//   const snp = await getDocs(col)
+//   const lst = snp.docs.map(doc => doc.data())
+//   return lst
+// }
+
+// console.log(getData(db))
+
 
 function App() {
   const DAY = 86400000
   const d = new Date()
   const sections = ["Morning", "Afternoon", "Evening", "Night"]
-  const addSections = ["Fitness", "Planner", "Plants", "Bills", "Planner", "Priority"]
+  const addSections = ["Fitness", "Chores", "Plants", "Planner", "Bills", "Priority"]
   const weekday = ["Su", "M", "Tu", "W", "Th", "F", "Sa"]
-  const sectionTasks = ["Today", "Chores", "Ongoing"]
+  const sectionTasks = ["Today", "Ongoing"]
   const sectionIcons = [faCoffee, faSun, faMoon, faBed]
   
   // state
@@ -59,11 +71,18 @@ function App() {
   const [addSelect, setAddSelect] = useState(false)
   const [fitDay, setFitDay] = useState(weekday[d.getDay()])
   const [selectedItemId, setSelectedItemId] = useState(null)
+  const [choreList, updateChoreList] = useState([])
+  const [choreCount, setChoreCount] = useState(localStorage.getItem("choreCount") || 0)
+
+  // console.log(choreCount)
+
+  const choreGoal = 3
 
   useEffect(() => {
     localStorage.setItem("listSelect", listSelect)
     localStorage.setItem("sectionSelect", sectionSelect)
-  }, [listSelect, sectionSelect])
+    localStorage.setItem("choreCount", choreCount)
+  }, [listSelect, sectionSelect, choreCount])
 
   useEffect(() => {
     onValue(listInDB, function(snapshot) {
@@ -74,6 +93,13 @@ function App() {
       }
     })
   }, [])
+
+  useEffect(() => {
+    const sortedChores = [...list].filter(elem => elem[1].type === "Chores").sort((i1, i2) => {
+      return i2[1].level - i1[1].level
+    })
+    updateChoreList(sortedChores)
+  }, [list])
 
   function addClick(newEntry) {
     push(listInDB, newEntry)
@@ -130,11 +156,23 @@ function App() {
           "count" : item.checkType === "count" && item.defaultCount
         })
         .catch((error) => handleLog(error))
-
-        // reset section and task list
-        setListSelect("Morning")
-        setSectionSelect("Tasks")
       })
+
+      // Chores update
+      list
+      .filter(elem => elem[1].type === "Chores")
+      .forEach(elem => {
+        const id = elem[0]
+        const item = obj[id]
+        set(ref(database, "carpeDiem/" + id), {
+          ...item,
+          "level" : item.level + item.chorePriority
+        })
+      })
+
+      // reset section and task list
+      setListSelect("Morning")
+      setSectionSelect("Tasks")
       list
       .filter(elem => (elem[1].type === "Planner" || elem[1].type === "Ongoing"))
       .forEach(elem => {
@@ -153,6 +191,7 @@ function App() {
       const d = new Date()
       setFitDay(weekday[d.getDay()])
       setSelectedItemId(null)
+      setChoreCount(0)
     }
   }
 
@@ -223,6 +262,17 @@ function App() {
     })
   }
 
+  // handle chore click
+  function choreClick(_, id) {
+    const item = obj[id]
+    // console.log(item.name)
+    setChoreCount(prev => prev + 1)
+    set(ref(database, "carpeDiem/" + id), {
+      ...item,
+      "level" : 0,
+    })
+  }
+
   // Sorting
   list.sort((i1, i2) => 
     // Sort timed by next up
@@ -271,7 +321,6 @@ function App() {
           donePreviously = {elem[1].donePreviously}
         />)
   )
-
   
   // Calculate list lengths for notifications
 
@@ -287,10 +336,10 @@ function App() {
   
   const toDoCounts = [
     fitCheckCount + fitCountCount(), 
-    0,
+    choreCount <= choreGoal ? choreGoal-choreCount : 0,
     list.filter(elem => Date.now() >= elem[1].lastChecked+elem[1].checkFreq*DAY).length, 
-    list.filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date()).length, 
     list.filter(elem => elem[1].type === "Planner" && elem[1].toDo && !elem[1].dueTomorrow).length,
+    list.filter(elem => elem[1].type === "Bills" && new Date(elem[1].dueDate) <= new Date()).length, 
     list.filter(elem => elem[1].toDo && elem[1].priority).length,
     list.filter(elem => elem[1].toDo && elem[1].list === 0).length,
     list.filter(elem => elem[1].toDo && elem[1].list === 1).length,
@@ -298,6 +347,13 @@ function App() {
     list.filter(elem => elem[1].toDo && elem[1].list === 3).length,
   ]
   // console.log(toDoCounts.slice(6))
+
+  // console.log(obj1.checkList)
+  // const freq = ['Table', 'Lawn', 'App', 'Vacuum Front', 'Finances', 'Vacuum Back', 'Kitchen', 'Kale', 'Handshake ', 'Sheets', 'Bathroom', 'Fridge']
+  // const twoWeek = ['Mop', 'Stove', 'Toaster', 'Cabinets', 'Office', 'Mow Lawn', 'Litter Champ', 'Bedroom']
+  // const monthly = ['Living Room', 'Deck', 'Data Backup', 'Porch', 'Shed', 'Nook']
+  // const threeMonth = ['Pipe Check', 'Bike', 'Roof', 'Resume', 'Oven']
+
 
   return (
     <>
@@ -321,9 +377,6 @@ function App() {
             />
           )}
         </div>
-        {/* <button className='button' onClick={resetDay}>
-          <FontAwesomeIcon icon={faRefresh} />
-        </button> */}
       </div>
       {/* Content area */}
       <div style={{height:"25px"}} />
@@ -347,6 +400,7 @@ function App() {
                 listSelect={listSelect}
                 toDoCounts={toDoCounts.slice(6)}
                 resetDay={resetDay}
+                taskCount={list.filter(elem => elem[1].toDo && !elem[1].type).length}
               />
             </div>
           }
@@ -370,6 +424,18 @@ function App() {
               />
             </div>
           }
+          {sectionSelect === "Chores" && 
+              <div className='inner-content'>
+                <ListFull 
+                  list={choreList} 
+                  type="Chores" 
+                  filter={elem => elem} 
+                  handleChange={choreClick}
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
+              </div>
+            }
           {sectionSelect === "Bills" && 
             <div className="inner-content">                
               <ListFull 
@@ -488,19 +554,6 @@ function App() {
                 />
               </div>
               }
-              {listSelectTasks === "Chores" && 
-                <div className='inner-content'>
-                  <>chores</>
-                  <ListFull 
-                    list={list} 
-                    type="Plants" 
-                    filter={elem => Date.now() < elem[1].lastChecked+(elem[1].checkFreq*DAY)} 
-                    handleChange={() => handleLog("undo?")} 
-                    onHold={selectItem} 
-                    selectedItemId={selectedItemId} 
-                  />
-                </div>
-              }
               {listSelectTasks === "Ongoing" && 
               <div className='inner-content'>
                 <ListFull 
@@ -526,7 +579,7 @@ function App() {
                 sections={sectionTasks}
                 setListSelect={setListSelectTasks}
                 listSelect={listSelectTasks}
-                toDoCounts={toDoCounts.slice(5)}
+                toDoCounts={[1,1]}
                 // refresh={resetDay}
               />
             </div>

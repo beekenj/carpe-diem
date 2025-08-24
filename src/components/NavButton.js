@@ -2,7 +2,7 @@ import './NavButton.css'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { 
     // faHourglassStart, 
-    faHourglassEnd, 
+    // faHourglassEnd, 
     faCoffee, 
     faSun,
     faMoon, 
@@ -16,7 +16,9 @@ import {
     faCalendar,
     faCalendarCheck,
     faCalendarPlus,
-    faRefresh
+    faRefresh,
+    // faToolbox,
+    faBroom,
 } from '@fortawesome/free-solid-svg-icons'
 
 export default function NavButton(props) {
@@ -34,12 +36,13 @@ export default function NavButton(props) {
         "Planner":faCalendar,
         "Today":faCalendarCheck,
         "Ongoing":faCalendarPlus,
-        "Chores":faHourglassEnd,
+        "Chores":faBroom,
         "Refresh":faRefresh,
     }
+    const defaultColor = props.color ? props.color : 'white'
     const style={
         color:props.section === props.sectionSelect ? '#a2f3fc' : 
-            props.toDo === 0 ? '#ababab6d' : 'white'
+            props.toDo === 0 ? '#ababab6d' : defaultColor
     }
     return (
         <>

@@ -126,6 +126,11 @@ export default function ListItem(props) {
                     {props.item.count}
                 </div>
             }
+            {props.item.type === "Chores" &&
+                <div className="item-days-left">
+                    {props.item.chorePriority}
+                </div>
+            }
             {(props.item.type === "Planner" || props.item.type === "Ongoing") && 
                 <div className="iconArea" onClick={() => props.menuClick && props.menuClick(props.id)}>
                     {!props.item.dueTomorrow && props.menuClick && <FontAwesomeIcon icon={faChevronCircleRight} />}
