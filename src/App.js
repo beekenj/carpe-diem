@@ -78,6 +78,8 @@ function App() {
 
   const choreGoal = 3
 
+  const choreMap = {5:5, 4:4, 3:3.5, 2:3, 1:2.5}
+
   useEffect(() => {
     localStorage.setItem("listSelect", listSelect)
     localStorage.setItem("sectionSelect", sectionSelect)
@@ -166,7 +168,7 @@ function App() {
         const item = obj[id]
         set(ref(database, "carpeDiem/" + id), {
           ...item,
-          "level" : item.level + item.chorePriority
+          "level" : item.level + choreMap[item.chorePriority]
         })
       })
 
