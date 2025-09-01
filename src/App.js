@@ -74,7 +74,10 @@ function App() {
   const [choreList, updateChoreList] = useState([])
   const [choreCount, setChoreCount] = useState(localStorage.getItem("choreCount") || 0)
 
+  // setChoreCount(0)
+  // console.log(typeof(choreCount))
   // console.log(choreCount)
+  // localStorage.setItem("choreCount", 0)
 
   const choreGoal = 3
 
@@ -268,7 +271,7 @@ function App() {
   function choreClick(_, id) {
     const item = obj[id]
     // console.log(item.name)
-    setChoreCount(prev => prev + 1)
+    setChoreCount(prev => Number(prev) + 1)
     set(ref(database, "carpeDiem/" + id), {
       ...item,
       "level" : 0,
