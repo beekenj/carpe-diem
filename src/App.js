@@ -73,15 +73,20 @@ function App() {
   const [selectedItemId, setSelectedItemId] = useState(null)
   const [choreList, updateChoreList] = useState([])
   const [choreCount, setChoreCount] = useState(localStorage.getItem("choreCount") || 0)
+  const [taskList, updateTaskList] = useState([])
 
   // setChoreCount(0)
   // console.log(typeof(choreCount))
-  // console.log(choreCount)
+  // console.log(list.filter(elem => !elem[1].type).sort((e1, e2) => {return e1[1].num - e2[1].num}))
+  // console.log(taskList.map(elem => [elem[1].name, elem[1].num]))
+  // console.log(choreList.map(elem => elem[1].level))
   // localStorage.setItem("choreCount", 0)
 
   const choreGoal = 3
 
-  const choreMap = {5:5, 4:4, 3:3.5, 2:3, 1:2.5}
+  // const choreMap = {5:5, 4:4, 3:3.5, 2:3, 1:2.5}
+  // const choreMap = {5:5, 4:4, 3:3.25, 2:2.75, 1:2}
+  const choreMap = {5:5, 4:4, 3:3, 2:2, 1:1}
 
   useEffect(() => {
     localStorage.setItem("listSelect", listSelect)
@@ -104,6 +109,10 @@ function App() {
       return i2[1].level - i1[1].level
     })
     updateChoreList(sortedChores)
+    const sortedTasks = [...list].filter(elem => !elem[1].type).sort((i1, i2) => {
+      return i1[1].num - i2[1].num
+    })
+    updateTaskList(sortedTasks)
   }, [list])
 
   function addClick(newEntry) {
@@ -296,8 +305,8 @@ function App() {
       return new Date(i1[1].dueDate) - new Date(i2[1].dueDate)})
 
   // Setup DOM content
-  const toDoList = list.map((_, idx) => 
-    list
+  const toDoList = taskList.map((_, idx) => 
+    taskList
       .filter(elem => elem[1].toDo && elem[1].list === idx)
       .map((elem, idx) => 
         <ListItem 
@@ -311,8 +320,8 @@ function App() {
           donePreviously = {elem[1].donePreviously}
         />)
   )
-  const doneList = list.map((_, idx) => 
-    list
+  const doneList = taskList.map((_, idx) => 
+    taskList
       .filter(elem => !elem[1].toDo && elem[1].list === idx)
       .map((elem, idx) => 
         <ListItem 
@@ -353,12 +362,12 @@ function App() {
   ]
   // console.log(toDoCounts.slice(6))
 
-  // console.log(obj1.checkList)
+  // console.log(choreCount)
   // const freq = ['Table', 'Lawn', 'App', 'Vacuum Front', 'Finances', 'Vacuum Back', 'Kitchen', 'Kale', 'Handshake ', 'Sheets', 'Bathroom', 'Fridge']
   // const twoWeek = ['Mop', 'Stove', 'Toaster', 'Cabinets', 'Office', 'Mow Lawn', 'Litter Champ', 'Bedroom']
   // const monthly = ['Living Room', 'Deck', 'Data Backup', 'Porch', 'Shed', 'Nook']
   // const threeMonth = ['Pipe Check', 'Bike', 'Roof', 'Resume', 'Oven']
-
+  
 
   return (
     <>
@@ -430,7 +439,16 @@ function App() {
             </div>
           }
           {sectionSelect === "Chores" && 
+              // chore list with independent misc. item
               <div className='inner-content'>
+                <ListFull 
+                  list={[[0, {name:"Misc.", type:"Chores"}]]} 
+                  type="Chores" 
+                  filter={elem => elem} 
+                  handleChange={() => setChoreCount(prev => Number(prev) + 1)}
+                  onHold={selectItem} 
+                  selectedItemId={selectedItemId} 
+                />
                 <ListFull 
                   list={choreList} 
                   type="Chores" 
