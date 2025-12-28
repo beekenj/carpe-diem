@@ -86,7 +86,7 @@ function App() {
 
   // const choreMap = {5:5, 4:4, 3:3.5, 2:3, 1:2.5}
   // const choreMap = {5:5, 4:4, 3:3.25, 2:2.75, 1:2}
-  const choreMap = {5:5, 4:4, 3:3, 2:2, 1:1}
+  const choreMap = {5:7, 4:5, 3:3, 2:1.5, 1:0.75}
 
   useEffect(() => {
     localStorage.setItem("listSelect", listSelect)
@@ -278,12 +278,14 @@ function App() {
 
   // handle chore click
   function choreClick(_, id) {
+    const d1 = new Date()
     const item = obj[id]
-    // console.log(item.name)
+    // console.log(d1.toString())
     setChoreCount(prev => Number(prev) + 1)
     set(ref(database, "carpeDiem/" + id), {
       ...item,
       "level" : 0,
+      "date" : d1.toString(),
     })
   }
 
